@@ -13,6 +13,14 @@ class BusStop {
     required this.longitude,
   });
 
-  // TODO implement BusStop.fromJson
-
+  // Implementing BusStop.fromJson
+  factory BusStop.fromJson(Map<String, dynamic> json) {
+    return BusStop(
+      busStopCode: json['BusStopCode'] as String,
+      roadName: json['RoadName'] as String,
+      description: json['Description'] as String,
+      latitude: json['Latitude'] as double,
+      longitude: json['Longitude'] as double,
+    );
+  }
 }
