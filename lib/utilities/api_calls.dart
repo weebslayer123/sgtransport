@@ -40,8 +40,20 @@ class ApiCalls {
   }
 
   // Refer to 2.10 Taxi Stands
-  List<TaxiStand> fetchTaxiStands() {
-    // TODO return List<TaxiStand>
-    return [];
+  Future<List<TaxiStand>> fetchTaxiStands() async {
+    final response = await http.get(
+      Uri.parse('http://datamall2.mytransport.sg/ltaodataservice/TaxiStands'),
+      headers: {
+        'AccountKey': 'SEijCWZMTeezw0/HAUyKOw==',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body)['value'];
+      return data.map((item) => TaxiStand.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load taxi stands');
+    }
   }
 }

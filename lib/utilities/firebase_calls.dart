@@ -9,8 +9,6 @@ FirebaseAuth auth = FirebaseAuth.instance;
 CollectionReference faresCollection =
     FirebaseFirestore.instance.collection('fares');
 
-class FirebaseCalls {
-  void addTaxiFare() {
-    //TODO Add taxi fare to fares collection
-  }
+Future<void> addTaxiFare(Map<String, dynamic> fareData) async {
+  await FirebaseFirestore.instance.collection('fares').add(fareData);
 }

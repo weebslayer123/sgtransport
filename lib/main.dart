@@ -7,6 +7,7 @@ import '../screens/login_screen.dart';
 import '../screens/bus_screen.dart';
 import '../screens/train_screen.dart';
 import '../screens/taxi_screen.dart';
+import '../screens/add_taxi_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         '/bus': (context) => const BusScreen(),
         '/train': (context) => const TrainScreen(),
         '/taxi': (context) => const TaxiScreen(),
+        '/add_taxi': (context) => AddTaxiScreen()
       },
     );
   }
