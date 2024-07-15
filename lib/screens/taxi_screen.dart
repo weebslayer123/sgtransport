@@ -78,17 +78,19 @@ class _TaxiScreenState extends State<TaxiScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Fare'),
-          content: Text('Are you sure you want to delete this fare?'),
+          title: Text('Delete Fare', style: TextStyle(color: Colors.white)),
+          content: Text('Are you sure you want to delete this fare?',
+              style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.black,
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: Text('Cancel', style: TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Delete'),
+              child: Text('Delete', style: TextStyle(color: Colors.red)),
               onPressed: () {
                 _deleteFare(fare);
                 Navigator.of(context).pop();
@@ -102,146 +104,188 @@ class _TaxiScreenState extends State<TaxiScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Taxi'),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-            child: Center(
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Taxi',
+              style: TextStyle(
+                  color: Colors.white)), // Set AppBar text color to white
+          backgroundColor: Colors.black,
+        ),
+        body: Container(
+          color: Colors.black, // Set background color to black
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 16.0, horizontal: 16.0),
+                child: Center(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Autocomplete<String>(
+                      optionsBuilder: (TextEditingValue textEditingValue) {
+                        if (textEditingValue.text.isEmpty) {
+                          return const Iterable<String>.empty();
+                        }
+                        return _allTaxiStands!.map((stand) => stand.name).where(
+                            (name) => name.contains(textEditingValue.text));
+                      },
+                      onSelected: (String selection) {
+                        setState(() {
+                          _selectedTaxiStand = selection;
+                        });
+                      },
+                      fieldViewBuilder: (BuildContext context,
+                          TextEditingController textEditingController,
+                          FocusNode focusNode,
+                          VoidCallback onFieldSubmitted) {
+                        return TextField(
+                          controller: textEditingController,
+                          focusNode: focusNode,
+                          style: TextStyle(
+                              color: Colors.white), // Set text color to white
+                          decoration: InputDecoration(
+                            hintText: 'Enter Taxi Stand',
+                            hintStyle: TextStyle(color: Colors.white70),
+                            border: InputBorder.none,
+                            prefixIcon: Icon(Icons.search, color: Colors.white),
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.clear, color: Colors.white),
+                              onPressed: () {
+                                textEditingController.clear();
+                                setState(() {
+                                  _selectedTaxiStand = null;
+                                });
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Autocomplete<String>(
-                  optionsBuilder: (TextEditingValue textEditingValue) {
-                    if (textEditingValue.text.isEmpty) {
-                      return const Iterable<String>.empty();
+              ),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('fares')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Center(child: CircularProgressIndicator());
                     }
-                    return _allTaxiStands!
-                        .map((stand) => stand.name)
-                        .where((name) => name.contains(textEditingValue.text));
-                  },
-                  onSelected: (String selection) {
-                    setState(() {
-                      _selectedTaxiStand = selection;
-                    });
-                  },
-                  fieldViewBuilder: (BuildContext context,
-                      TextEditingController textEditingController,
-                      FocusNode focusNode,
-                      VoidCallback onFieldSubmitted) {
-                    return TextField(
-                      controller: textEditingController,
-                      focusNode: focusNode,
-                      decoration: InputDecoration(
-                        hintText: 'Enter Taxi Stand',
-                        border: InputBorder.none,
-                        prefixIcon: Icon(Icons.search),
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.clear),
-                          onPressed: () {
-                            textEditingController.clear();
-                            setState(() {
-                              _selectedTaxiStand = null;
-                            });
+                    final fares = snapshot.data!.docs;
+                    return ListView.builder(
+                      itemCount: fares.length,
+                      itemBuilder: (context, index) {
+                        final fare = fares[index];
+                        return ListTile(
+                          title: Text('${fare['origin']} > ${fare['dest']}',
+                              style: TextStyle(color: Colors.white)),
+                          subtitle: Text('${fare['date']}',
+                              style: TextStyle(color: Colors.white70)),
+                          trailing: Text('\$${fare['fare']}',
+                              style: TextStyle(color: Colors.white)),
+                          onLongPress: () {
+                            _showDeleteDialog(context, fare);
                           },
-                        ),
-                      ),
+                        );
+                      },
                     );
                   },
                 ),
               ),
-            ),
-          ),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream:
-                  FirebaseFirestore.instance.collection('fares').snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                final fares = snapshot.data!.docs;
-                return ListView.builder(
-                  itemCount: fares.length,
-                  itemBuilder: (context, index) {
-                    final fare = fares[index];
-                    return ListTile(
-                      title: Text('${fare['origin']} > ${fare['dest']}'),
-                      subtitle: Text('${fare['date']}'),
-                      trailing: Text('\$${fare['fare']}'),
-                      onLongPress: () {
-                        _showDeleteDialog(context, fare);
-                      },
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: StreamBuilder<double>(
-              stream: getTotalFareStream(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Text('Total amount spent: \$0.0');
-                }
-                return Text('Total amount spent: \$${snapshot.data}');
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/add_taxi');
-                  },
-                  child: Text('Add Taxi Fare'),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                  ),
-                ),
-                SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_selectedTaxiStand != null) {
-                      final selectedStand = _allTaxiStands!.firstWhere(
-                          (stand) => stand.name == _selectedTaxiStand);
-                      _launchMap(
-                        selectedStand.latitude,
-                        selectedStand.longitude,
-                      );
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: StreamBuilder<double>(
+                  stream: getTotalFareStream(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Text('Total amount spent: \$0.0',
+                          style: TextStyle(color: Colors.white));
                     }
+                    return Text('Total amount spent: \$${snapshot.data}',
+                        style: TextStyle(color: Colors.white));
                   },
-                  child: Text('Show Map'),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                  ),
                 ),
-              ],
-            ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/add_taxi');
+                      },
+                      child: Text('Add Taxi Fare'),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                            Color(0xFF2B2B2C)), // Set button color to #2B2B2C
+                        foregroundColor: MaterialStateProperty.all(
+                            Colors.white), // Set text color to white
+                        overlayColor: MaterialStateProperty.all(Colors.purple
+                            .withOpacity(
+                                0.2)), // Set pressed color to match navigation bar
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        padding: MaterialStateProperty.all(
+                          EdgeInsets.symmetric(vertical: 20),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_selectedTaxiStand != null) {
+                          final selectedStand = _allTaxiStands!.firstWhere(
+                              (stand) => stand.name == _selectedTaxiStand);
+                          _launchMap(
+                            selectedStand.latitude,
+                            selectedStand.longitude,
+                          );
+                        }
+                      },
+                      child: Text('Show Map'),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                            Color(0xFF2B2B2C)), // Set button color to #2B2B2C
+                        foregroundColor: MaterialStateProperty.all(
+                            Colors.white), // Set text color to white
+                        overlayColor: MaterialStateProperty.all(Colors.purple
+                            .withOpacity(
+                                0.2)), // Set pressed color to match navigation bar
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        padding: MaterialStateProperty.all(
+                          EdgeInsets.symmetric(vertical: 20),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
+        bottomNavigationBar: MyBottomNavigationBar(
+            selectedIndexNavBar: 2), // Taxi is the third item
       ),
-      bottomNavigationBar: MyBottomNavigationBar(
-          selectedIndexNavBar: 2), // Taxi is the third item
     );
   }
 }

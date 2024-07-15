@@ -34,55 +34,64 @@ class _AddTaxiScreenState extends State<AddTaxiScreen> {
       appBar: AppBar(
         title: Text('Add Taxi Fare'),
       ),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            TextFormField(
-              controller: _originController,
-              decoration: InputDecoration(labelText: 'Origin'),
-              validator: (value) {
-                if (value?.isEmpty ?? true) {
-                  return 'Please enter the origin';
-                }
-                return null;
-              },
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _originController,
+                  decoration: InputDecoration(labelText: 'Origin'),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Please enter the origin';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _destinationController,
+                  decoration: InputDecoration(labelText: 'Destination'),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Please enter the destination';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _fareController,
+                  decoration: InputDecoration(labelText: 'Fare'),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Please enter the fare';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _dateController,
+                  decoration: InputDecoration(labelText: 'Date'),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Please enter the date';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _addTaxiFare,
+                  child: Text('Add'),
+                ),
+              ],
             ),
-            TextFormField(
-              controller: _destinationController,
-              decoration: InputDecoration(labelText: 'Destination'),
-              validator: (value) {
-                if (value?.isEmpty ?? true) {
-                  return 'Please enter the destination';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              controller: _fareController,
-              decoration: InputDecoration(labelText: 'Fare'),
-              validator: (value) {
-                if (value?.isEmpty ?? true) {
-                  return 'Please enter the fare';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              controller: _dateController,
-              decoration: InputDecoration(labelText: 'Date'),
-              validator: (value) {
-                if (value?.isEmpty ?? true) {
-                  return 'Please enter the date';
-                }
-                return null;
-              },
-            ),
-            ElevatedButton(
-              onPressed: _addTaxiFare,
-              child: Text('Add'),
-            ),
-          ],
+          ),
         ),
       ),
     );
