@@ -11,48 +11,104 @@ class ApiCalls {
     'AccountKey': 'SEijCWZMTeezw0/HAUyKOw==', // Updated API Key
   };
 
-  // Refer to 2.4 Bus Stops
+  // Fetch Bus Stops
   Future<List<BusStop>> fetchBusStops() async {
     String baseURL = 'http://datamall2.mytransport.sg/ltaodataservice/BusStops';
 
-    final response =
-        await http.get(Uri.parse(baseURL), headers: requestHeaders);
+    try {
+      final response =
+          await http.get(Uri.parse(baseURL), headers: requestHeaders);
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      List<BusStop> busStops = (data['value'] as List)
-          .map((busStopJson) => BusStop.fromJson(busStopJson))
-          .toList();
-      return busStops;
-    } else {
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        List<BusStop> busStops = (data['value'] as List)
+            .map((busStopJson) => BusStop.fromJson(busStopJson))
+            .toList();
+        return busStops;
+      } else {
+        print('Failed to load bus stops. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to load bus stops');
+      }
+    } catch (e) {
+      print('Exception: $e');
       throw Exception('Failed to load bus stops');
     }
   }
 
-  // Refer to 2.1 Bus Arrival
-  void fetchBusArrival() {
-    // TODO return List<BusArrival>
+  // Fetch Bus Arrivals
+  Future<List<BusArrival>> fetchBusArrivals(String busStopCode) async {
+    String baseURL =
+        'http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode=$busStopCode';
+
+    try {
+      final response =
+          await http.get(Uri.parse(baseURL), headers: requestHeaders);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        List<BusArrival> busArrivals = (data['Services'] as List)
+            .map((busArrivalJson) => BusArrival.fromJson(busArrivalJson))
+            .toList();
+        return busArrivals;
+      } else {
+        print(
+            'Failed to load bus arrivals. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to load bus arrivals');
+      }
+    } catch (e) {
+      print('Exception: $e');
+      throw Exception('Failed to load bus arrivals');
+    }
   }
 
-  // Refer to 2.25 Platform Crowd Density
-  void fetchCrowdDensity() {
-    // TODO return List<CrowdDensity>
+  // Fetch Platform Crowd Density
+  Future<List<CrowdDensity>> fetchCrowdDensity() async {
+    String baseURL =
+        'http://datamall2.mytransport.sg/ltaodataservice/PCDRealTime';
+
+    try {
+      final response =
+          await http.get(Uri.parse(baseURL), headers: requestHeaders);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        List<CrowdDensity> crowdDensities = (data['value'] as List)
+            .map((crowdDensityJson) => CrowdDensity.fromJson(crowdDensityJson))
+            .toList();
+        return crowdDensities;
+      } else {
+        print(
+            'Failed to load crowd densities. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to load crowd densities');
+      }
+    } catch (e) {
+      print('Exception: $e');
+      throw Exception('Failed to load crowd densities');
+    }
   }
 
-  // Refer to 2.10 Taxi Stands
+  // Fetch Taxi Stands
   Future<List<TaxiStand>> fetchTaxiStands() async {
-    final response = await http.get(
-      Uri.parse('http://datamall2.mytransport.sg/ltaodataservice/TaxiStands'),
-      headers: {
-        'AccountKey': 'SEijCWZMTeezw0/HAUyKOw==',
-        'Accept': 'application/json',
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('http://datamall2.mytransport.sg/ltaodataservice/TaxiStands'),
+        headers: requestHeaders,
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body)['value'];
-      return data.map((item) => TaxiStand.fromJson(item)).toList();
-    } else {
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body)['value'];
+        return data.map((item) => TaxiStand.fromJson(item)).toList();
+      } else {
+        print(
+            'Failed to load taxi stands. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to load taxi stands');
+      }
+    } catch (e) {
+      print('Exception: $e');
       throw Exception('Failed to load taxi stands');
     }
   }
