@@ -7,6 +7,10 @@ class CrowdDensity {
     required this.crowdLevel,
   });
 
-  // TODO implement CrowdDensity.fromJson
-
+  factory CrowdDensity.fromJson(Map<String, dynamic> json) {
+    return CrowdDensity(
+      station: json['Station'] as String,
+      crowdLevel: json['CrowdLevel'] as String,
+    );
+  }
 }

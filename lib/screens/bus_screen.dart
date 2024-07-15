@@ -16,6 +16,8 @@ class BusScreen extends StatefulWidget {
 class _BusScreenState extends State<BusScreen> {
   List<BusStop> _allBusStops = [];
   BusStop? _selectedBusStop;
+  List<BusArrival> _busArrivals = [];
+  bool _isLoadingArrivals = false;
 
   @override
   void initState() {
@@ -29,12 +31,37 @@ class _BusScreenState extends State<BusScreen> {
       setState(() {
         _allBusStops = busStops;
         _selectedBusStop = busStops.isNotEmpty ? busStops[0] : null;
+        if (_selectedBusStop != null) {
+          _fetchBusArrivals(_selectedBusStop!);
+        }
       });
     } catch (e) {
-      // Handle error, e.g., show a snackbar
+      print('Error fetching bus stops: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load bus stops: $e')),
       );
+    }
+  }
+
+  Future<void> _fetchBusArrivals(BusStop busStop) async {
+    setState(() {
+      _isLoadingArrivals = true;
+    });
+    try {
+      List<BusArrival> busArrivals =
+          await ApiCalls().fetchBusArrivals(busStop.busStopCode);
+      setState(() {
+        _busArrivals = busArrivals;
+      });
+    } catch (e) {
+      print('Error fetching bus arrivals: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load bus arrivals: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoadingArrivals = false;
+      });
     }
   }
 
@@ -65,6 +92,9 @@ class _BusScreenState extends State<BusScreen> {
                 onChanged: (BusStop? newValue) {
                   setState(() {
                     _selectedBusStop = newValue;
+                    if (newValue != null) {
+                      _fetchBusArrivals(newValue);
+                    }
                   });
                 },
                 items: _allBusStops
@@ -76,7 +106,29 @@ class _BusScreenState extends State<BusScreen> {
                 }).toList(),
               ),
             ),
-            // Add widget to display bus arrivals for the selected bus stop
+            if (_isLoadingArrivals) ...[
+              const CircularProgressIndicator(),
+              const Text('Loading bus arrivals...'),
+            ] else ...[
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _busArrivals.length,
+                  itemBuilder: (context, index) {
+                    BusArrival arrival = _busArrivals[index];
+                    return ListTile(
+                      title: Text('Service No: ${arrival.serviceNo}'),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: arrival.nextBus.map((NextBus nextBus) {
+                          return Text(
+                              'Next Bus: ${nextBus.computeArrival()} mins, Load: ${nextBus.load}');
+                        }).toList(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ] else ...[
             const CircularProgressIndicator(),
             const Text('Loading bus stops...'),
