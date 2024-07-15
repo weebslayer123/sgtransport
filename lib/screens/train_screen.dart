@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
 import '../utilities/api_calls.dart';
-
 import '../models/train_stations_repository.dart';
 import '../models/train_crowd_density.dart';
 import '../widgets/navigation_bar.dart';
@@ -21,13 +19,203 @@ class _TrainScreenState extends State<TrainScreen> {
     trainLineCode: '',
   );
 
+  List<CrowdDensity> _crowdDensityList = [];
+  bool _isLoading = true;
+  String _errorMessage = '';
+  final TrainStationsRepository _trainStationsRepository =
+      TrainStationsRepository();
+  final TextEditingController _searchController = TextEditingController();
+  List<TrainStation> _filteredTrainStations = [];
+  TrainStation? _searchedStation;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCrowdDensity();
+    _filteredTrainStations = _trainStationsRepository.allTrainStations;
+    _searchController.addListener(_filterTrainStations);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchCrowdDensity() async {
+    try {
+      // Example TrainLine parameter, update as needed
+      String trainLine = 'NSL';
+      List<CrowdDensity> crowdDensityList =
+          await ApiCalls().fetchCrowdDensity(trainLine);
+      setState(() {
+        _crowdDensityList = crowdDensityList;
+        _isLoading = false;
+      });
+    } catch (error) {
+      setState(() {
+        _errorMessage = error.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _filterTrainStations() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredTrainStations = _trainStationsRepository.allTrainStations
+          .where((station) =>
+              station.stnName.toLowerCase().contains(query) ||
+              station.stnCode.toLowerCase().contains(query))
+          .toList();
+      _searchedStation =
+          null; // Reset searched station if user types something new
+    });
+  }
+
+  void _onSelected(TrainStation selection) {
+    setState(() {
+      _searchController.text = '${selection.stnName} (${selection.stnCode})';
+      _searchedStation = selection;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Train'),
+        title: const Text('Train', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
       ),
       bottomNavigationBar: MyBottomNavigationBar(selectedIndexNavBar: 1),
+      body: Column(
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+            child: Center(
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Autocomplete<TrainStation>(
+                  optionsBuilder: (TextEditingValue textEditingValue) {
+                    if (textEditingValue.text.isEmpty) {
+                      return const Iterable<TrainStation>.empty();
+                    }
+                    return _filteredTrainStations;
+                  },
+                  displayStringForOption: (TrainStation option) =>
+                      option.stnName,
+                  fieldViewBuilder: (BuildContext context,
+                      TextEditingController textEditingController,
+                      FocusNode focusNode,
+                      VoidCallback onFieldSubmitted) {
+                    return TextField(
+                      controller: textEditingController,
+                      focusNode: focusNode,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Enter Train Station',
+                        hintStyle: TextStyle(color: Colors.white70),
+                        border: InputBorder.none,
+                        prefixIcon: Icon(Icons.search, color: Colors.white),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.clear, color: Colors.white),
+                          onPressed: () {
+                            textEditingController.clear();
+                            setState(() {
+                              _searchedStation = null;
+                            });
+                          },
+                        ),
+                      ),
+                      onChanged: (value) {
+                        _searchController.text = value;
+                        _filterTrainStations();
+                      },
+                    );
+                  },
+                  onSelected: (TrainStation selection) {
+                    _onSelected(selection);
+                  },
+                  optionsViewBuilder: (BuildContext context,
+                      AutocompleteOnSelected<TrainStation> onSelected,
+                      Iterable<TrainStation> options) {
+                    return Align(
+                      alignment: Alignment.topLeft,
+                      child: Material(
+                        color: Colors.black,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width - 16,
+                          margin: const EdgeInsets.all(8.0),
+                          child: ListView.builder(
+                            padding: const EdgeInsets.all(8.0),
+                            itemCount: options.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final TrainStation option =
+                                  options.elementAt(index);
+                              return GestureDetector(
+                                onTap: () {
+                                  onSelected(option);
+                                },
+                                child: ListTile(
+                                  title: Text(option.stnName,
+                                      style: TextStyle(color: Colors.white)),
+                                  subtitle: Text(option.stnCode,
+                                      style: TextStyle(color: Colors.white)),
+                                  tileColor: Colors.black,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(color: Colors.white))
+                : _errorMessage.isNotEmpty
+                    ? Center(
+                        child: Text(_errorMessage,
+                            style: TextStyle(color: Colors.white)))
+                    : ListView.builder(
+                        itemCount: _searchedStation == null
+                            ? _filteredTrainStations.length
+                            : 1,
+                        itemBuilder: (context, index) {
+                          final trainStation = _searchedStation == null
+                              ? _filteredTrainStations[index]
+                              : _searchedStation!;
+                          final crowdDensity = _crowdDensityList.firstWhere(
+                              (density) =>
+                                  density.station == trainStation.stnCode,
+                              orElse: () => CrowdDensity(
+                                  station: 'Unknown', crowdLevel: 'N/A'));
+                          return ListTile(
+                            title: Text(
+                                '${trainStation.stnName} (${trainStation.stnCode})',
+                                style: TextStyle(color: Colors.white)),
+                            subtitle: Text(
+                                'Crowd Level: ${crowdDensity.crowdLevel}',
+                                style: TextStyle(color: Colors.white)),
+                            tileColor: Colors.black,
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
     );
   }
 }

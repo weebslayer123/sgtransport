@@ -64,7 +64,8 @@ class ApiCalls {
   }
 
   // Fetch Platform Crowd Density
-  Future<List<CrowdDensity>> fetchCrowdDensity() async {
+
+  Future<List<CrowdDensity>> fetchCrowdDensityBus() async {
     String baseURL =
         'http://datamall2.mytransport.sg/ltaodataservice/PCDRealTime';
 
@@ -87,6 +88,27 @@ class ApiCalls {
     } catch (e) {
       print('Exception: $e');
       throw Exception('Failed to load crowd densities');
+    }
+  }
+
+  // Refer to 2.25 Platform Crowd Density
+  Future<List<CrowdDensity>> fetchCrowdDensity(String trainLine) async {
+    String baseURL =
+        'http://datamall2.mytransport.sg/ltaodataservice/PCDRealTime';
+    final response = await http.get(
+      Uri.parse('$baseURL?TrainLine=$trainLine'),
+      headers: requestHeaders,
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      List<CrowdDensity> crowdDensityList = (data['value'] as List)
+          .map((crowdDensityJson) => CrowdDensity.fromJson(crowdDensityJson))
+          .toList();
+      return crowdDensityList;
+    } else {
+      print('Failed to load crowd density data: ${response.body}');
+      throw Exception('Failed to load crowd density data');
     }
   }
 
