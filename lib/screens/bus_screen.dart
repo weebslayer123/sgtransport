@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:geolocator/geolocator.dart';
 import '../utilities/api_calls.dart';
 import '../utilities/firebase_calls.dart';
 import '../utilities/my_url_launcher.dart';
@@ -25,21 +25,38 @@ class _BusScreenState extends State<BusScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchBusStops();
+    _fetchAllBusStops();
   }
 
-  Future<void> _fetchBusStops() async {
+  Future<void> _fetchAllBusStops() async {
+    int skip = 0;
+    List<BusStop> busStops = [];
+
+    while (true) {
+      List<BusStop> fetchedBusStops = await _fetchBusStops(skip);
+      if (fetchedBusStops.isEmpty) {
+        break;
+      }
+      busStops.addAll(fetchedBusStops);
+      skip += 500;
+    }
+
+    setState(() {
+      _allBusStops = busStops;
+    });
+    _findNearestBusStop();
+  }
+
+  Future<List<BusStop>> _fetchBusStops(int skip) async {
     try {
-      List<BusStop> busStops = await ApiCalls().fetchBusStops();
-      setState(() {
-        _allBusStops = busStops;
-      });
-      _findNearestBusStop();
+      List<BusStop> busStops = await ApiCalls().fetchBusStops(skip: skip);
+      return busStops;
     } catch (e) {
       print('Error fetching bus stops: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load bus stops: $e')),
       );
+      return [];
     }
   }
 

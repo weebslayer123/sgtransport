@@ -42,10 +42,11 @@ class NextBus {
   }
 
   String computeArrival() {
-    if (estimatedArrival != '') {
+    if (estimatedArrival.isNotEmpty) {
       var nextBus = DateTime.parse(estimatedArrival);
       var difference = nextBus.difference(DateTime.now()).inMinutes;
-      return difference.toString();
+      // Ensure the computed arrival time is non-negative
+      return difference < 0 ? '0' : difference.toString();
     }
     return '';
   }

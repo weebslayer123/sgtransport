@@ -11,9 +11,10 @@ class ApiCalls {
     'AccountKey': 'SEijCWZMTeezw0/HAUyKOw==', // Updated API Key
   };
 
-  // Fetch Bus Stops
-  Future<List<BusStop>> fetchBusStops() async {
-    String baseURL = 'http://datamall2.mytransport.sg/ltaodataservice/BusStops';
+  // Fetch Bus Stops with pagination
+  Future<List<BusStop>> fetchBusStops({int skip = 0}) async {
+    String baseURL =
+        'http://datamall2.mytransport.sg/ltaodataservice/BusStops?\$skip=$skip';
 
     try {
       final response =
