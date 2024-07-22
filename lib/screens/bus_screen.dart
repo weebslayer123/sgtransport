@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../utilities/api_calls.dart';
 import '../utilities/firebase_calls.dart';
@@ -33,12 +34,74 @@ class _BusScreenState extends State<BusScreen> {
       setState(() {
         _allBusStops = busStops;
       });
+      _findNearestBusStop();
     } catch (e) {
       print('Error fetching bus stops: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load bus stops: $e')),
       );
     }
+  }
+
+  Future<void> _findNearestBusStop() async {
+    try {
+      Position position = await _determinePosition();
+      print('User location: ${position.latitude}, ${position.longitude}');
+      BusStop? nearestBusStop;
+      double nearestDistance = double.infinity;
+
+      for (var busStop in _allBusStops) {
+        double distance = Geolocator.distanceBetween(
+          position.latitude,
+          position.longitude,
+          busStop.latitude,
+          busStop.longitude,
+        );
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestBusStop = busStop;
+        }
+      }
+
+      if (nearestBusStop != null) {
+        print('Nearest bus stop: ${nearestBusStop.description}');
+        setState(() {
+          _selectedBusStop = nearestBusStop;
+        });
+        _fetchBusArrivals(nearestBusStop);
+      }
+    } catch (e) {
+      print('Error finding nearest bus stop: $e');
+    }
+  }
+
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      print('Location services are disabled.');
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        print('Location permissions are denied');
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      print('Location permissions are permanently denied');
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    return await Geolocator.getCurrentPosition();
   }
 
   Future<void> _fetchBusArrivals(BusStop busStop) async {
