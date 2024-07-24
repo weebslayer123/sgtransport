@@ -50,4 +50,17 @@ class NextBus {
     }
     return '';
   }
+
+  String getLoadDescription() {
+    switch (load) {
+      case 'SEA':
+        return 'Seats Available';
+      case 'SDA':
+        return 'Standing Available';
+      case 'LSD':
+        return 'Limited Standing';
+      default:
+        return 'Unknown Load';
+    }
+  }
 }
