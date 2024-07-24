@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../utilities/api_calls.dart';
 import '../models/train_stations_repository.dart';
 import '../models/train_crowd_density.dart';
@@ -12,6 +13,7 @@ class TrainScreen extends StatefulWidget {
 }
 
 class _TrainScreenState extends State<TrainScreen> {
+  final FirebaseAuth auth = FirebaseAuth.instance; // Define the auth object
   TrainStation _selectedTrainStation = TrainStation(
     stnCode: '',
     stnName: '',
@@ -31,7 +33,6 @@ class _TrainScreenState extends State<TrainScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchCrowdDensity();
     _filteredTrainStations = _trainStationsRepository.allTrainStations;
     _searchController.addListener(_filterTrainStations);
   }
@@ -42,10 +43,8 @@ class _TrainScreenState extends State<TrainScreen> {
     super.dispose();
   }
 
-  Future<void> _fetchCrowdDensity() async {
+  Future<void> _fetchCrowdDensity(String trainLine) async {
     try {
-      // Example TrainLine parameter, update as needed
-      String trainLine = 'NSL';
       List<CrowdDensity> crowdDensityList =
           await ApiCalls().fetchCrowdDensity(trainLine);
       setState(() {
@@ -77,7 +76,33 @@ class _TrainScreenState extends State<TrainScreen> {
     setState(() {
       _searchController.text = '${selection.stnName} (${selection.stnCode})';
       _searchedStation = selection;
+      _fetchCrowdDensity(selection
+          .trainLineCode); // Fetch crowd density for the selected train line
     });
+  }
+
+  void _showMRTMap() {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset('images/mrt_map.png'),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Close'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -95,89 +120,100 @@ class _TrainScreenState extends State<TrainScreen> {
             padding:
                 const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
             child: Center(
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Autocomplete<TrainStation>(
-                  optionsBuilder: (TextEditingValue textEditingValue) {
-                    if (textEditingValue.text.isEmpty) {
-                      return const Iterable<TrainStation>.empty();
-                    }
-                    return _filteredTrainStations;
-                  },
-                  displayStringForOption: (TrainStation option) =>
-                      option.stnName,
-                  fieldViewBuilder: (BuildContext context,
-                      TextEditingController textEditingController,
-                      FocusNode focusNode,
-                      VoidCallback onFieldSubmitted) {
-                    return TextField(
-                      controller: textEditingController,
-                      focusNode: focusNode,
-                      style: TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: 'Enter Train Station',
-                        hintStyle: TextStyle(color: Colors.white70),
-                        border: InputBorder.none,
-                        prefixIcon: Icon(Icons.search, color: Colors.white),
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.clear, color: Colors.white),
-                          onPressed: () {
-                            textEditingController.clear();
-                            setState(() {
-                              _searchedStation = null;
-                            });
-                          },
-                        ),
-                      ),
-                      onChanged: (value) {
-                        _searchController.text = value;
-                        _filterTrainStations();
+              child: Column(
+                children: [
+                  Text(
+                    'Hello ${auth.currentUser?.displayName}',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  SizedBox(height: 16.0),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Autocomplete<TrainStation>(
+                      optionsBuilder: (TextEditingValue textEditingValue) {
+                        if (textEditingValue.text.isEmpty) {
+                          return const Iterable<TrainStation>.empty();
+                        }
+                        return _filteredTrainStations;
                       },
-                    );
-                  },
-                  onSelected: (TrainStation selection) {
-                    _onSelected(selection);
-                  },
-                  optionsViewBuilder: (BuildContext context,
-                      AutocompleteOnSelected<TrainStation> onSelected,
-                      Iterable<TrainStation> options) {
-                    return Align(
-                      alignment: Alignment.topLeft,
-                      child: Material(
-                        color: Colors.black,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width - 16,
-                          margin: const EdgeInsets.all(8.0),
-                          child: ListView.builder(
-                            padding: const EdgeInsets.all(8.0),
-                            itemCount: options.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              final TrainStation option =
-                                  options.elementAt(index);
-                              return GestureDetector(
-                                onTap: () {
-                                  onSelected(option);
-                                },
-                                child: ListTile(
-                                  title: Text(option.stnName,
-                                      style: TextStyle(color: Colors.white)),
-                                  subtitle: Text(option.stnCode,
-                                      style: TextStyle(color: Colors.white)),
-                                  tileColor: Colors.black,
-                                ),
-                              );
-                            },
+                      displayStringForOption: (TrainStation option) =>
+                          option.stnName,
+                      fieldViewBuilder: (BuildContext context,
+                          TextEditingController textEditingController,
+                          FocusNode focusNode,
+                          VoidCallback onFieldSubmitted) {
+                        return TextField(
+                          controller: textEditingController,
+                          focusNode: focusNode,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: 'Enter Train Station',
+                            hintStyle: TextStyle(color: Colors.white70),
+                            border: InputBorder.none,
+                            prefixIcon: Icon(Icons.search, color: Colors.white),
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.clear, color: Colors.white),
+                              onPressed: () {
+                                textEditingController.clear();
+                                setState(() {
+                                  _searchedStation = null;
+                                });
+                              },
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                          onChanged: (value) {
+                            _searchController.text = value;
+                            _filterTrainStations();
+                          },
+                        );
+                      },
+                      onSelected: (TrainStation selection) {
+                        _onSelected(selection);
+                      },
+                      optionsViewBuilder: (BuildContext context,
+                          AutocompleteOnSelected<TrainStation> onSelected,
+                          Iterable<TrainStation> options) {
+                        return Align(
+                          alignment: Alignment.topLeft,
+                          child: Material(
+                            color: Colors.black,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width - 16,
+                              margin: const EdgeInsets.all(8.0),
+                              child: ListView.builder(
+                                padding: const EdgeInsets.all(8.0),
+                                itemCount: options.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final TrainStation option =
+                                      options.elementAt(index);
+                                  return GestureDetector(
+                                    onTap: () {
+                                      onSelected(option);
+                                    },
+                                    child: ListTile(
+                                      title: Text(option.stnName,
+                                          style:
+                                              TextStyle(color: Colors.white)),
+                                      subtitle: Text(option.stnCode,
+                                          style:
+                                              TextStyle(color: Colors.white)),
+                                      tileColor: Colors.black,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -213,6 +249,17 @@ class _TrainScreenState extends State<TrainScreen> {
                           );
                         },
                       ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: _showMRTMap,
+              child: Text('Show Map'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue, // Set button color
+                foregroundColor: Colors.white, // Set text color
+              ),
+            ),
           ),
         ],
       ),
