@@ -4,6 +4,7 @@ import '../models/bus_arrival.dart';
 import '../models/bus_stop.dart';
 import '../models/train_crowd_density.dart';
 import '../models/taxi_stand.dart';
+import '../models/travel_time_segment.dart';
 
 class ApiCalls {
   Map<String, String> requestHeaders = {
@@ -133,6 +134,30 @@ class ApiCalls {
     } catch (e) {
       print('Exception: $e');
       throw Exception('Failed to load taxi stands');
+    }
+  }
+
+  // Fetch Estimated Travel Times
+  Future<List<TravelTimeSegment>> fetchEstimatedTravelTimes() async {
+    String baseURL =
+        'http://datamall2.mytransport.sg/ltaodataservice/EstTravelTimes';
+
+    try {
+      final response =
+          await http.get(Uri.parse(baseURL), headers: requestHeaders);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body)['value'];
+        return data.map((json) => TravelTimeSegment.fromJson(json)).toList();
+      } else {
+        print(
+            'Failed to load travel times. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to load travel times');
+      }
+    } catch (e) {
+      print('Exception: $e');
+      throw Exception('Failed to load travel times');
     }
   }
 }

@@ -21,6 +21,7 @@ class TaxiScreen extends StatefulWidget {
 class _TaxiScreenState extends State<TaxiScreen> {
   List<TaxiStand>? _allTaxiStands = [];
   String? _selectedTaxiStand;
+  final ApiCalls _apiCalls = ApiCalls();
 
   @override
   void initState() {
@@ -29,21 +30,13 @@ class _TaxiScreenState extends State<TaxiScreen> {
   }
 
   Future<void> fetchTaxiStands() async {
-    final response = await http.get(
-      Uri.parse('http://datamall2.mytransport.sg/ltaodataservice/TaxiStands'),
-      headers: {
-        'AccountKey': 'SEijCWZMTeezw0/HAUyKOw==',
-        'Accept': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body)['value'];
+    try {
+      final stands = await _apiCalls.fetchTaxiStands();
       setState(() {
-        _allTaxiStands = data.map((item) => TaxiStand.fromJson(item)).toList();
+        _allTaxiStands = stands;
       });
-    } else {
-      throw Exception('Failed to load taxi stands');
+    } catch (e) {
+      print('Error fetching taxi stands: $e');
     }
   }
 
@@ -110,13 +103,11 @@ class _TaxiScreenState extends State<TaxiScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Taxi',
-              style: TextStyle(
-                  color: Colors.white)), // Set AppBar text color to white
+          title: Text('Taxi', style: TextStyle(color: Colors.white)),
           backgroundColor: Colors.black,
         ),
         body: Container(
-          color: Colors.black, // Set background color to black
+          color: Colors.black,
           child: Column(
             children: [
               Padding(
@@ -150,8 +141,7 @@ class _TaxiScreenState extends State<TaxiScreen> {
                         return TextField(
                           controller: textEditingController,
                           focusNode: focusNode,
-                          style: TextStyle(
-                              color: Colors.white), // Set text color to white
+                          style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: 'Enter Taxi Stand',
                             hintStyle: TextStyle(color: Colors.white70),
@@ -229,13 +219,11 @@ class _TaxiScreenState extends State<TaxiScreen> {
                       },
                       child: Text('Add Taxi Fare'),
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                            Color(0xFF2B2B2C)), // Set button color to #2B2B2C
-                        foregroundColor: MaterialStateProperty.all(
-                            Colors.white), // Set text color to white
-                        overlayColor: MaterialStateProperty.all(Colors.purple
-                            .withOpacity(
-                                0.2)), // Set pressed color to match navigation bar
+                        backgroundColor: MaterialStateProperty.all(Colors.blue),
+                        foregroundColor:
+                            MaterialStateProperty.all(Colors.white),
+                        overlayColor: MaterialStateProperty.all(
+                            Colors.purple.withOpacity(0.2)),
                         shape: MaterialStateProperty.all(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -260,13 +248,11 @@ class _TaxiScreenState extends State<TaxiScreen> {
                       },
                       child: Text('Show Map'),
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                            Color(0xFF2B2B2C)), // Set button color to #2B2B2C
-                        foregroundColor: MaterialStateProperty.all(
-                            Colors.white), // Set text color to white
-                        overlayColor: MaterialStateProperty.all(Colors.purple
-                            .withOpacity(
-                                0.2)), // Set pressed color to match navigation bar
+                        backgroundColor: MaterialStateProperty.all(Colors.blue),
+                        foregroundColor:
+                            MaterialStateProperty.all(Colors.white),
+                        overlayColor: MaterialStateProperty.all(
+                            Colors.purple.withOpacity(0.2)),
                         shape: MaterialStateProperty.all(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -283,8 +269,7 @@ class _TaxiScreenState extends State<TaxiScreen> {
             ],
           ),
         ),
-        bottomNavigationBar: MyBottomNavigationBar(
-            selectedIndexNavBar: 2), // Taxi is the third item
+        bottomNavigationBar: MyBottomNavigationBar(selectedIndexNavBar: 2),
       ),
     );
   }

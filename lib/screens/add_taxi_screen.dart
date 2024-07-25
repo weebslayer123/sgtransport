@@ -32,21 +32,37 @@ class _AddTaxiScreenState extends State<AddTaxiScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Taxi Fare'),
+        title: Text(
+          'Add Taxi Fare',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
         },
-        child: Form(
-          key: _formKey,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
+        child: Container(
+          color: Colors.black,
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
             child: Column(
               children: [
                 TextFormField(
                   controller: _originController,
-                  decoration: InputDecoration(labelText: 'Origin'),
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Origin',
+                    labelStyle: TextStyle(color: Colors.white70),
+                    filled: true,
+                    fillColor: Colors.grey[850],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                  ),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter the origin';
@@ -54,9 +70,20 @@ class _AddTaxiScreenState extends State<AddTaxiScreen> {
                     return null;
                   },
                 ),
+                SizedBox(height: 16),
                 TextFormField(
                   controller: _destinationController,
-                  decoration: InputDecoration(labelText: 'Destination'),
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Destination',
+                    labelStyle: TextStyle(color: Colors.white70),
+                    filled: true,
+                    fillColor: Colors.grey[850],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                  ),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter the destination';
@@ -64,9 +91,20 @@ class _AddTaxiScreenState extends State<AddTaxiScreen> {
                     return null;
                   },
                 ),
+                SizedBox(height: 16),
                 TextFormField(
                   controller: _fareController,
-                  decoration: InputDecoration(labelText: 'Fare'),
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Fare',
+                    labelStyle: TextStyle(color: Colors.white70),
+                    filled: true,
+                    fillColor: Colors.grey[850],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                  ),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter the fare';
@@ -74,9 +112,20 @@ class _AddTaxiScreenState extends State<AddTaxiScreen> {
                     return null;
                   },
                 ),
+                SizedBox(height: 16),
                 TextFormField(
                   controller: _dateController,
-                  decoration: InputDecoration(labelText: 'Date'),
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Date',
+                    labelStyle: TextStyle(color: Colors.white70),
+                    filled: true,
+                    fillColor: Colors.grey[850],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                  ),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter the date';
@@ -87,6 +136,14 @@ class _AddTaxiScreenState extends State<AddTaxiScreen> {
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _addTaxiFare,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                  ),
                   child: Text('Add'),
                 ),
               ],

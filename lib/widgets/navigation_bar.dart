@@ -22,6 +22,9 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
         case 2:
           Navigator.pushReplacementNamed(context, '/taxi');
           break;
+        case 3:
+          Navigator.pushReplacementNamed(context, '/expressway');
+          break;
       }
     });
   }
@@ -43,11 +46,15 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
           label: 'Taxi',
           icon: Icon(Icons.directions_car),
         ),
+        BottomNavigationBarItem(
+          label: 'ExpressWay',
+          icon: Icon(Icons.map),
+        ),
       ],
       currentIndex: widget.selectedIndexNavBar,
       onTap: _onTap,
       selectedItemColor: Colors.purple,
-      unselectedItemColor: Colors.white,
+      unselectedItemColor: Colors.black,
       selectedLabelStyle: TextStyle(color: Colors.white),
       unselectedLabelStyle: TextStyle(color: Colors.white),
       showUnselectedLabels: true,
