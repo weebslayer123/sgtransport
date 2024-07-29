@@ -187,8 +187,10 @@ class _BusScreenState extends State<BusScreen> {
         appBar: AppBar(
           title: Text('Bus Arrival',
               style: TextStyle(
+                  fontWeight: FontWeight.w500,
                   color: Colors.white)), // Set AppBar text color to white
-          backgroundColor: Colors.black, // Set AppBar background color to black
+          backgroundColor:
+              Colors.purple[300], // Set AppBar background color to black
           actions: [
             IconButton(
               onPressed: () {
@@ -200,7 +202,7 @@ class _BusScreenState extends State<BusScreen> {
           ],
         ),
         body: Container(
-          color: Colors.black, // Set background color to black
+          color: Colors.purple[300], // Set background color to black
           child: Column(
             children: [
               Text(
