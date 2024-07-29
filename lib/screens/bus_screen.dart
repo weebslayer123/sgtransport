@@ -152,6 +152,31 @@ class _BusScreenState extends State<BusScreen> {
     }
   }
 
+  Widget _buildBusIcon(String type) {
+    String assetName;
+    switch (type) {
+      case 'SD':
+        assetName = 'images/single_decker.png';
+        break;
+      case 'DD':
+        assetName = 'images/double_decker.png';
+        break;
+      case 'BD':
+        assetName = 'images/bendy_bus.png';
+        break;
+      default:
+        return SizedBox.shrink(); // Return an empty widget if type is unknown
+    }
+    return Image.asset(assetName, width: 24, height: 24);
+  }
+
+  Widget _buildWheelchairIcon(String feature) {
+    if (feature == 'WAB') {
+      return Image.asset('images/wheelchair.png', width: 24, height: 24);
+    }
+    return SizedBox.shrink();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -279,10 +304,21 @@ class _BusScreenState extends State<BusScreen> {
                                       style: TextStyle(
                                           fontSize: 16, color: Colors.orange),
                                     ),
-                                    Text(
-                                      'Load: ${nextBus.getLoadDescription()}',
-                                      style: TextStyle(
-                                          fontSize: 14, color: Colors.black),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Load: ${nextBus.getLoadDescription()}',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.black),
+                                        ),
+                                        SizedBox(width: 8),
+                                        _buildBusIcon(nextBus.type),
+                                        SizedBox(width: 8),
+                                        _buildWheelchairIcon(nextBus.feature),
+                                      ],
                                     ),
                                   ],
                                 );
