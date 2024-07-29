@@ -243,13 +243,30 @@ class _BusScreenState extends State<BusScreen> {
                       controller: fieldTextEditingController,
                       focusNode: fieldFocusNode,
                       style: TextStyle(
-                          color: Colors.white), // Set text color to white
+                          color: Colors.black), // Set text color to black
                       decoration: InputDecoration(
+                        filled: true, // Enable background color
+                        fillColor:
+                            Colors.white, // Set background color to white
                         labelText: 'Search Bus Stop',
                         labelStyle: TextStyle(
-                            color: Colors
-                                .white70), // Set label text color to white
-                        border: OutlineInputBorder(),
+                            color:
+                                Colors.black), // Set label text color to black
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 2.0), // Make the outline bolder
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 2.0), // Make the outline bolder
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 2.0), // Make the outline bolder
+                        ),
                       ),
                     );
                   },
