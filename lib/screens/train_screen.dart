@@ -120,12 +120,19 @@ class _TrainScreenState extends State<TrainScreen> {
   void _filterByLine(String lineCode) {
     setState(() {
       _selectedLineCode = lineCode;
-      _filteredTrainStations = _trainStationsRepository.allTrainStations
-          .where((station) => station.trainLineCode == _selectedLineCode)
-          .toList();
+      _searchController.clear();
+      if (lineCode == 'All') {
+        _filteredTrainStations = _trainStationsRepository.allTrainStations;
+      } else {
+        _filteredTrainStations = _trainStationsRepository.allTrainStations
+            .where((station) => station.trainLineCode == lineCode)
+            .toList();
+      }
       _searchedStation = null;
     });
-    _fetchCrowdDensity(lineCode);
+    if (lineCode != 'All') {
+      _fetchCrowdDensity(lineCode);
+    }
   }
 
   String _formatCrowdLevel(String level) {
@@ -315,9 +322,13 @@ class _TrainScreenState extends State<TrainScreen> {
                     ? const Center(
                         child: CircularProgressIndicator(color: Colors.white))
                     : ListView.builder(
-                        itemCount: _searchHistory.length,
+                        itemCount: _selectedLineCode == 'All'
+                            ? _searchHistory.length
+                            : _filteredTrainStations.length,
                         itemBuilder: (context, index) {
-                          final trainStation = _searchHistory[index];
+                          final trainStation = _selectedLineCode == 'All'
+                              ? _searchHistory[index]
+                              : _filteredTrainStations[index];
                           final crowdDensity = _crowdDensityList.firstWhere(
                               (density) =>
                                   density.station == trainStation.stnCode,
