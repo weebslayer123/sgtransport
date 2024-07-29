@@ -22,13 +22,15 @@ class _TrainScreenState extends State<TrainScreen> {
   );
 
   List<CrowdDensity> _crowdDensityList = [];
-  bool _isLoading = true;
+  bool _isLoading = false;
   String _errorMessage = '';
   final TrainStationsRepository _trainStationsRepository =
       TrainStationsRepository();
   final TextEditingController _searchController = TextEditingController();
   List<TrainStation> _filteredTrainStations = [];
+  List<TrainStation> _searchHistory = [];
   TrainStation? _searchedStation;
+  String _selectedLineCode = 'All';
 
   @override
   void initState() {
@@ -45,6 +47,9 @@ class _TrainScreenState extends State<TrainScreen> {
 
   Future<void> _fetchCrowdDensity(String trainLine) async {
     try {
+      setState(() {
+        _isLoading = true;
+      });
       List<CrowdDensity> crowdDensityList =
           await ApiCalls().fetchCrowdDensity(trainLine);
       setState(() {
@@ -67,6 +72,11 @@ class _TrainScreenState extends State<TrainScreen> {
               station.stnName.toLowerCase().contains(query) ||
               station.stnCode.toLowerCase().contains(query))
           .toList();
+      if (_selectedLineCode != 'All') {
+        _filteredTrainStations = _filteredTrainStations
+            .where((station) => station.trainLineCode == _selectedLineCode)
+            .toList();
+      }
       _searchedStation =
           null; // Reset searched station if user types something new
     });
@@ -76,9 +86,11 @@ class _TrainScreenState extends State<TrainScreen> {
     setState(() {
       _searchController.text = '${selection.stnName} (${selection.stnCode})';
       _searchedStation = selection;
-      _fetchCrowdDensity(selection
-          .trainLineCode); // Fetch crowd density for the selected train line
+      _searchHistory.insert(
+          0, selection); // Add the selection to search history
     });
+    _fetchCrowdDensity(selection
+        .trainLineCode); // Fetch crowd density for the selected train line
   }
 
   void _showMRTMap() {
@@ -105,6 +117,43 @@ class _TrainScreenState extends State<TrainScreen> {
     );
   }
 
+  void _filterByLine(String lineCode) {
+    setState(() {
+      _selectedLineCode = lineCode;
+      _filteredTrainStations = _trainStationsRepository.allTrainStations
+          .where((station) => station.trainLineCode == _selectedLineCode)
+          .toList();
+      _searchedStation = null;
+    });
+    _fetchCrowdDensity(lineCode);
+  }
+
+  String _formatCrowdLevel(String level) {
+    switch (level) {
+      case 'l':
+        return 'Low';
+      case 'h':
+        return 'High';
+      case 'm':
+        return 'Moderate';
+      default:
+        return 'N/A';
+    }
+  }
+
+  Color _getCrowdLevelColor(String level) {
+    switch (level) {
+      case 'l':
+        return Colors.green;
+      case 'h':
+        return Colors.red;
+      case 'm':
+        return Colors.orange;
+      default:
+        return Colors.white;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,6 +161,46 @@ class _TrainScreenState extends State<TrainScreen> {
       appBar: AppBar(
         title: const Text('Train', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
+        actions: [
+          PopupMenuButton<String>(
+            icon: Icon(Icons.filter_list, color: Colors.white),
+            onSelected: (String value) {
+              _filterByLine(value);
+            },
+            itemBuilder: (BuildContext context) {
+              return <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: 'All',
+                  child: Text('All Lines'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'NSL',
+                  child: Text('North-South Line (NSL)'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'EWL',
+                  child: Text('East-West Line (EWL)'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'NEL',
+                  child: Text('North East Line (NEL)'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'CCL',
+                  child: Text('Circle Line (CCL)'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'DTL',
+                  child: Text('Downtown Line (DTL)'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'TEL',
+                  child: Text('Thomson-East Coast Line (TEL)'),
+                ),
+              ];
+            },
+          ),
+        ],
       ),
       bottomNavigationBar: MyBottomNavigationBar(selectedIndexNavBar: 1),
       body: Column(
@@ -123,7 +212,7 @@ class _TrainScreenState extends State<TrainScreen> {
               child: Column(
                 children: [
                   Text(
-                    'Hello ${auth.currentUser?.displayName}',
+                    'Hello ${auth.currentUser?.displayName ?? 'me'}',
                     style: TextStyle(color: Colors.white),
                   ),
                   SizedBox(height: 16.0),
@@ -218,21 +307,17 @@ class _TrainScreenState extends State<TrainScreen> {
             ),
           ),
           Expanded(
-            child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: Colors.white))
-                : _errorMessage.isNotEmpty
-                    ? Center(
-                        child: Text(_errorMessage,
-                            style: TextStyle(color: Colors.white)))
+            child: _errorMessage.isNotEmpty
+                ? Center(
+                    child: Text(_errorMessage,
+                        style: TextStyle(color: Colors.white)))
+                : _isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(color: Colors.white))
                     : ListView.builder(
-                        itemCount: _searchedStation == null
-                            ? _filteredTrainStations.length
-                            : 1,
+                        itemCount: _searchHistory.length,
                         itemBuilder: (context, index) {
-                          final trainStation = _searchedStation == null
-                              ? _filteredTrainStations[index]
-                              : _searchedStation!;
+                          final trainStation = _searchHistory[index];
                           final crowdDensity = _crowdDensityList.firstWhere(
                               (density) =>
                                   density.station == trainStation.stnCode,
@@ -242,9 +327,25 @@ class _TrainScreenState extends State<TrainScreen> {
                             title: Text(
                                 '${trainStation.stnName} (${trainStation.stnCode})',
                                 style: TextStyle(color: Colors.white)),
-                            subtitle: Text(
-                                'Crowd Level: ${crowdDensity.crowdLevel}',
-                                style: TextStyle(color: Colors.white)),
+                            subtitle: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: 'Crowd Level: ',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  TextSpan(
+                                    text: _formatCrowdLevel(
+                                        crowdDensity.crowdLevel),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: _getCrowdLevelColor(
+                                          crowdDensity.crowdLevel),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             tileColor: Colors.black,
                           );
                         },

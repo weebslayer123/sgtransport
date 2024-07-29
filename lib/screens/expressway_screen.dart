@@ -20,6 +20,9 @@ class _ExpressWayScreenState extends State<ExpressWayScreen> {
   List<TravelTimeSegment> travelTimeSegments = [];
   List<String> startPoints = [];
   List<String> endPoints = [];
+  List<Map<String, String>> searchHistory = [];
+  String startPoint = '';
+  String endPoint = '';
   String estimatedTravelTime = '';
 
   @override
@@ -62,35 +65,33 @@ class _ExpressWayScreenState extends State<ExpressWayScreen> {
   }
 
   void calculateEstimatedTravelTime() {
-    String startPoint = _startPointController.text;
-    String endPoint = _endPointController.text;
+    startPoint = _startPointController.text;
+    endPoint = _endPointController.text;
     int totalTime = 0;
+    bool found = false;
 
     for (var segment in travelTimeSegments) {
       if (segment.startPoint == startPoint && segment.endPoint == endPoint) {
         totalTime += segment.estTime;
+        found = true;
+        break; // Assuming direct segment between start and end
       }
     }
 
-    setState(() {
+    if (!found) {
+      estimatedTravelTime =
+          'No direct segment found between $startPoint and $endPoint';
+    } else {
       estimatedTravelTime = '$totalTime minutes';
-    });
+    }
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Estimated Travel Time'),
-        content: Text('Estimated travel time: $estimatedTravelTime'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('OK'),
-          ),
-        ],
-      ),
-    );
+    setState(() {
+      searchHistory.add({
+        'startPoint': startPoint,
+        'endPoint': endPoint,
+        'estimatedTravelTime': estimatedTravelTime,
+      });
+    });
   }
 
   @override
@@ -101,86 +102,114 @@ class _ExpressWayScreenState extends State<ExpressWayScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            'ExpressWay',
-            style: TextStyle(color: Colors.white),
-          ),
+          title: Text('ExpressWay', style: TextStyle(color: Colors.white)),
           backgroundColor: Colors.black,
         ),
         body: Container(
           color: Colors.black,
-          padding: EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TypeAheadField(
-                textFieldConfiguration: TextFieldConfiguration(
-                  controller: _startPointController,
-                  focusNode: _startPointFocusNode,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Enter Start Point',
-                    hintStyle: TextStyle(color: Colors.grey),
-                    prefixIcon: Icon(Icons.search, color: Colors.white),
-                    filled: true,
-                    fillColor: Colors.grey[850],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TypeAheadField(
+                  textFieldConfiguration: TextFieldConfiguration(
+                    controller: _startPointController,
+                    focusNode: _startPointFocusNode,
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Enter Start Point',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      prefixIcon: Icon(Icons.search, color: Colors.white),
+                      filled: true,
+                      fillColor: Colors.grey[850],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
                     ),
+                    onChanged: (value) {
+                      updateEndPoints(value);
+                    },
                   ),
-                  onChanged: (value) {
-                    updateEndPoints(value);
+                  suggestionsCallback: (pattern) {
+                    return startPoints
+                        .where((point) => point.contains(pattern));
+                  },
+                  itemBuilder: (context, suggestion) {
+                    return ListTile(
+                      title: Text(suggestion.toString(),
+                          style: TextStyle(color: Colors.black)),
+                    );
+                  },
+                  onSuggestionSelected: (suggestion) {
+                    _startPointController.text = suggestion.toString();
+                    updateEndPoints(suggestion.toString());
                   },
                 ),
-                suggestionsCallback: (pattern) {
-                  return startPoints.where((point) => point.contains(pattern));
-                },
-                itemBuilder: (context, suggestion) {
-                  return ListTile(
-                    title: Text(
-                      suggestion.toString(),
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  );
-                },
-                onSuggestionSelected: (suggestion) {
-                  _startPointController.text = suggestion.toString();
-                  updateEndPoints(suggestion.toString());
-                },
               ),
-              SizedBox(height: 16.0),
-              TypeAheadField(
-                textFieldConfiguration: TextFieldConfiguration(
-                  controller: _endPointController,
-                  focusNode: _endPointFocusNode,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Enter End Point',
-                    hintStyle: TextStyle(color: Colors.grey),
-                    prefixIcon: Icon(Icons.search, color: Colors.white),
-                    filled: true,
-                    fillColor: Colors.grey[850],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TypeAheadField(
+                  textFieldConfiguration: TextFieldConfiguration(
+                    controller: _endPointController,
+                    focusNode: _endPointFocusNode,
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Enter End Point',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      prefixIcon: Icon(Icons.search, color: Colors.white),
+                      filled: true,
+                      fillColor: Colors.grey[850],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
                     ),
                   ),
+                  suggestionsCallback: (pattern) {
+                    return endPoints.where((point) => point.contains(pattern));
+                  },
+                  itemBuilder: (context, suggestion) {
+                    return ListTile(
+                      title: Text(suggestion.toString(),
+                          style: TextStyle(color: Colors.black)),
+                    );
+                  },
+                  onSuggestionSelected: (suggestion) {
+                    _endPointController.text = suggestion.toString();
+                  },
                 ),
-                suggestionsCallback: (pattern) {
-                  return endPoints.where((point) => point.contains(pattern));
-                },
-                itemBuilder: (context, suggestion) {
-                  return ListTile(
-                    title: Text(
-                      suggestion.toString(),
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  );
-                },
-                onSuggestionSelected: (suggestion) {
-                  _endPointController.text = suggestion.toString();
-                },
               ),
-              Spacer(),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: searchHistory.length,
+                  itemBuilder: (context, index) {
+                    final history = searchHistory[index];
+                    return Card(
+                      color: Colors.white,
+                      margin:
+                          EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Start Point: ${history['startPoint']}',
+                                style: TextStyle(
+                                    color: Colors.purple, fontSize: 20)),
+                            Text('End Point: ${history['endPoint']}',
+                                style: TextStyle(
+                                    color: Colors.purple, fontSize: 16)),
+                            SizedBox(height: 8),
+                            Text(
+                                'Time Estimation: ${history['estimatedTravelTime']}',
+                                style: TextStyle(
+                                    color: Colors.orange, fontSize: 20)),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
               Center(
                 child: Column(
                   children: [
@@ -190,6 +219,8 @@ class _ExpressWayScreenState extends State<ExpressWayScreen> {
                           _startPointController.clear();
                           _endPointController.clear();
                           endPoints.clear();
+                          estimatedTravelTime = '';
+                          searchHistory.clear();
                         });
                       },
                       style: ElevatedButton.styleFrom(
