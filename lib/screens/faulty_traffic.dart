@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/faulty_traffic_light.dart';
 import '../utilities/api_calls.dart';
+import '../widgets/navigation_bar.dart';
 
 class FaultyTrafficLightsScreen extends StatefulWidget {
   const FaultyTrafficLightsScreen({Key? key}) : super(key: key);
@@ -22,9 +23,10 @@ class _FaultyTrafficLightsScreenState extends State<FaultyTrafficLightsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Faulty Traffic Lights',
-            style: TextStyle(color: Colors.white)),
+        title:
+            const Text('Faulty Traffic', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(
@@ -37,7 +39,7 @@ class _FaultyTrafficLightsScreenState extends State<FaultyTrafficLightsScreen> {
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                    'images/expressway_bg.jpg'), // Replace with your background image
+                    'images/traffic_light_bg.jpg'), // Use the correct background image
                 fit: BoxFit.cover,
               ),
             ),

@@ -35,7 +35,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: Color(0xFF2B2B2C),
+      backgroundColor: const Color(0xFF2B2B2C),
       items: const [
         BottomNavigationBarItem(
           label: 'Bus',
@@ -54,7 +54,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
           icon: Icon(Icons.map),
         ),
         BottomNavigationBarItem(
-          label: 'Traffic Light',
+          label: 'Traffic',
           icon: Icon(Icons.traffic),
         ),
       ],
@@ -62,8 +62,8 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
       onTap: _onTap,
       selectedItemColor: Colors.purple,
       unselectedItemColor: Colors.black,
-      selectedLabelStyle: TextStyle(color: Colors.white),
-      unselectedLabelStyle: TextStyle(color: Colors.white),
+      selectedLabelStyle: const TextStyle(color: Colors.white),
+      unselectedLabelStyle: const TextStyle(color: Colors.white),
       showUnselectedLabels: true,
     );
   }
