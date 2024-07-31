@@ -3,15 +3,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import '../models/taxi_fare.dart';
-import '../utilities/firebase_calls.dart';
 
-class AddTaxiScreen extends StatefulWidget {
+class EditTaxiFareScreen extends StatefulWidget {
+  final DocumentSnapshot fare;
+
+  EditTaxiFareScreen({required this.fare});
+
   @override
-  _AddTaxiScreenState createState() => _AddTaxiScreenState();
+  _EditTaxiFareScreenState createState() => _EditTaxiFareScreenState();
 }
 
-class _AddTaxiScreenState extends State<AddTaxiScreen> {
+class _EditTaxiFareScreenState extends State<EditTaxiFareScreen> {
   final _formKey = GlobalKey<FormState>();
   final _originController = TextEditingController();
   final _destinationController = TextEditingController();
@@ -24,14 +26,25 @@ class _AddTaxiScreenState extends State<AddTaxiScreen> {
     type: MaskAutoCompletionType.lazy,
   );
 
-  Future<void> _addTaxiFare() async {
+  @override
+  void initState() {
+    super.initState();
+    _originController.text = widget.fare['origin'];
+    _destinationController.text = widget.fare['dest'];
+    _fareController.text = widget.fare['fare'].toString();
+    _dateController.text = widget.fare['date'];
+  }
+
+  Future<void> _updateTaxiFare() async {
     if (_formKey.currentState?.validate() ?? false) {
-      await FirebaseFirestore.instance.collection('fares').add({
+      await FirebaseFirestore.instance
+          .collection('fares')
+          .doc(widget.fare.id)
+          .update({
         'origin': _originController.text,
         'dest': _destinationController.text,
         'fare': double.parse(_fareController.text),
         'date': _dateController.text,
-        'userid': 'YOUR_USER_ID',
       });
       Navigator.pop(context);
     }
@@ -54,7 +67,7 @@ class _AddTaxiScreenState extends State<AddTaxiScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Add Taxi Fare',
+          'Edit Taxi Fare',
           style: TextStyle(color: Colors.black),
         ),
         backgroundColor: Colors.white,
@@ -69,7 +82,7 @@ class _AddTaxiScreenState extends State<AddTaxiScreen> {
             Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('images/taxiadd.png'), // Image path
+                  image: AssetImage('images/addtaxi.png'), // Image path
                   fit: BoxFit.cover,
                 ),
               ),
@@ -175,8 +188,8 @@ class _AddTaxiScreenState extends State<AddTaxiScreen> {
                       ),
                       SizedBox(height: 20),
                       ElevatedButton(
-                        onPressed: _addTaxiFare,
-                        child: Text('Add'),
+                        onPressed: _updateTaxiFare,
+                        child: Text('Update'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue, // Set button color
                           foregroundColor: Colors.white, // Set text color
