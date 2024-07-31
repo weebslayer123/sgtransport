@@ -211,6 +211,9 @@ class _BusScreenState extends State<BusScreen> {
                 ),
               ),
             ),
+            Container(
+              color: Colors.black.withOpacity(0.5), // Dim the background image
+            ),
             Column(
               children: [
                 Text(
@@ -329,8 +332,8 @@ class _BusScreenState extends State<BusScreen> {
                         BusArrival arrival = _busArrivals[index];
                         return Container(
                           decoration: BoxDecoration(
-                            color: Colors.white
-                                .withOpacity(0.8), // Translucent background
+                            color: Colors.grey.withOpacity(
+                                0.3), // Translucent grey background
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           margin: const EdgeInsets.symmetric(vertical: 4.0),

@@ -5,6 +5,7 @@ import '../models/bus_stop.dart';
 import '../models/train_crowd_density.dart';
 import '../models/taxi_stand.dart';
 import '../models/travel_time_segment.dart';
+import '../models/bus_route.dart'; // Add this line to include the bus route model
 
 class ApiCalls {
   Map<String, String> requestHeaders = {
@@ -65,8 +66,33 @@ class ApiCalls {
     }
   }
 
-  // Fetch Platform Crowd Density
+  // Fetch Bus Routes
+  Future<List<BusRoute>> fetchBusRoutes(String serviceNo) async {
+    String baseURL =
+        'http://datamall2.mytransport.sg/ltaodataservice/BusRoutes?\$filter=ServiceNo eq \'$serviceNo\'';
 
+    try {
+      final response =
+          await http.get(Uri.parse(baseURL), headers: requestHeaders);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        List<BusRoute> busRoutes = (data['value'] as List)
+            .map((busRouteJson) => BusRoute.fromJson(busRouteJson))
+            .toList();
+        return busRoutes;
+      } else {
+        print('Failed to load bus routes. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to load bus routes');
+      }
+    } catch (e) {
+      print('Exception: $e');
+      throw Exception('Failed to load bus routes');
+    }
+  }
+
+  // Fetch Platform Crowd Density
   Future<List<CrowdDensity>> fetchCrowdDensityBus() async {
     String baseURL =
         'http://datamall2.mytransport.sg/ltaodataservice/PCDRealTime';
@@ -93,7 +119,7 @@ class ApiCalls {
     }
   }
 
-  // Refer to 2.25 Platform Crowd Density
+  // Fetch Train Crowd Density
   Future<List<CrowdDensity>> fetchCrowdDensity(String trainLine) async {
     String baseURL =
         'http://datamall2.mytransport.sg/ltaodataservice/PCDRealTime';
