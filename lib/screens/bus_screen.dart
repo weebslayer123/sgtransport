@@ -188,9 +188,8 @@ class _BusScreenState extends State<BusScreen> {
           title: Text('Bus Arrival',
               style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  color: Colors.white)), // Set AppBar text color to white
-          backgroundColor:
-              Colors.purple[300], // Set AppBar background color to black
+                  color: Colors.black)), // Set AppBar text color to white
+          backgroundColor: Colors.white, // Set AppBar background color to black
           actions: [
             IconButton(
               onPressed: () {
@@ -201,148 +200,90 @@ class _BusScreenState extends State<BusScreen> {
             ),
           ],
         ),
-        body: Container(
-          color: Colors.purple[300], // Set background color to black
-          child: Column(
-            children: [
-              Text(
-                'Hello ${auth.currentUser?.displayName}',
-                style:
-                    TextStyle(color: Colors.white), // Set text color to white
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Autocomplete<BusStop>(
-                  optionsBuilder: (TextEditingValue textEditingValue) {
-                    if (textEditingValue.text.isEmpty) {
-                      return const Iterable<BusStop>.empty();
-                    }
-                    return _allBusStops.where((BusStop busStop) {
-                      return busStop.description
-                              .toLowerCase()
-                              .contains(textEditingValue.text.toLowerCase()) ||
-                          busStop.roadName
-                              .toLowerCase()
-                              .contains(textEditingValue.text.toLowerCase());
-                    });
-                  },
-                  displayStringForOption: (BusStop option) =>
-                      option.description,
-                  onSelected: (BusStop selection) {
-                    setState(() {
-                      _selectedBusStop = selection;
-                      _fetchBusArrivals(selection);
-                    });
-                  },
-                  fieldViewBuilder: (BuildContext context,
-                      TextEditingController fieldTextEditingController,
-                      FocusNode fieldFocusNode,
-                      VoidCallback onFieldSubmitted) {
-                    _searchController = fieldTextEditingController;
-                    return TextField(
-                      controller: fieldTextEditingController,
-                      focusNode: fieldFocusNode,
-                      style: TextStyle(
-                          color: Colors.black), // Set text color to black
-                      decoration: InputDecoration(
-                        filled: true, // Enable background color
-                        fillColor:
-                            Colors.white, // Set background color to white
-                        labelText: 'Search Bus Stop',
-                        labelStyle: TextStyle(
-                            color:
-                                Colors.black), // Set label text color to black
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2.0), // Make the outline bolder
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2.0), // Make the outline bolder
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2.0), // Make the outline bolder
-                        ),
-                      ),
-                    );
-                  },
+        body: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(
+                      'images/City Bus Aesthetic.jpeg'), // Replace with your image path
+                  fit: BoxFit.cover,
                 ),
               ),
-              if (_selectedBusStop != null)
+            ),
+            Column(
+              children: [
+                Text(
+                  'Hello ${auth.currentUser?.displayName}',
+                  style:
+                      TextStyle(color: Colors.white), // Set text color to white
+                ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${_selectedBusStop!.busStopCode} - ${_selectedBusStop!.description}',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                        Text(
-                          _selectedBusStop!.roadName,
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              if (_isLoadingArrivals) ...[
-                const CircularProgressIndicator(),
-                const Text('Loading bus arrivals...',
-                    style: TextStyle(
-                        color: Colors.white)), // Set text color to white
-              ] else ...[
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _busArrivals.length,
-                    itemBuilder: (context, index) {
-                      BusArrival arrival = _busArrivals[index];
-                      return Card(
-                        color: Colors.white,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                arrival.serviceNo,
-                                style: TextStyle(
-                                    fontSize: 20, color: Colors.purple),
-                              ),
-                              ...arrival.nextBus.map((NextBus nextBus) {
-                                return Column(
-                                  children: [
-                                    Text(
-                                      'Arriving: ${nextBus.computeArrival()} min',
-                                      style: TextStyle(
-                                          fontSize: 16, color: Colors.orange),
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Load: ${nextBus.getLoadDescription()}',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.black),
-                                        ),
-                                        SizedBox(width: 8),
-                                        _buildBusIcon(nextBus.type),
-                                        SizedBox(width: 8),
-                                        _buildWheelchairIcon(nextBus.feature),
-                                      ],
-                                    ),
-                                  ],
-                                );
-                              }).toList(),
-                            ],
+                  child: Autocomplete<BusStop>(
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text.isEmpty) {
+                        return const Iterable<BusStop>.empty();
+                      }
+                      return _allBusStops.where((BusStop busStop) {
+                        return busStop.description.toLowerCase().contains(
+                                textEditingValue.text.toLowerCase()) ||
+                            busStop.roadName
+                                .toLowerCase()
+                                .contains(textEditingValue.text.toLowerCase());
+                      });
+                    },
+                    displayStringForOption: (BusStop option) =>
+                        option.description,
+                    onSelected: (BusStop selection) {
+                      setState(() {
+                        _selectedBusStop = selection;
+                        _fetchBusArrivals(selection);
+                      });
+                    },
+                    fieldViewBuilder: (BuildContext context,
+                        TextEditingController fieldTextEditingController,
+                        FocusNode fieldFocusNode,
+                        VoidCallback onFieldSubmitted) {
+                      _searchController = fieldTextEditingController;
+                      return TextField(
+                        controller: fieldTextEditingController,
+                        focusNode: fieldFocusNode,
+                        style: TextStyle(
+                            color: Colors.black), // Set text color to black
+                        decoration: InputDecoration(
+                          filled: true, // Enable background color
+                          fillColor:
+                              Colors.white, // Set background color to white
+                          labelText: 'Search Bus Stop',
+                          labelStyle: TextStyle(
+                              color: Colors
+                                  .black), // Set label text color to black
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 2.0), // Make the outline bolder
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 2.0), // Make the outline bolder
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 2.0), // Make the outline bolder
+                          ),
+                          prefixIcon: Icon(Icons.search, color: Colors.black),
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.clear, color: Colors.black),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() {
+                                _selectedBusStop = null;
+                                _busArrivals = [];
+                              });
+                            },
                           ),
                         ),
                       );
@@ -352,23 +293,112 @@ class _BusScreenState extends State<BusScreen> {
                 if (_selectedBusStop != null)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _launchMap(
-                          _selectedBusStop!.latitude,
-                          _selectedBusStop!.longitude,
-                        );
-                      },
-                      child: Text('Show Map'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue, // Set button color
-                        foregroundColor: Colors.white, // Set text color
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            child: Text(
+                              '${_selectedBusStop!.busStopCode} - ${_selectedBusStop!.description}',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                          ),
+                          Container(
+                            child: Text(
+                              _selectedBusStop!.roadName,
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 14),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
+                if (_isLoadingArrivals) ...[
+                  const CircularProgressIndicator(),
+                  const Text('Loading bus arrivals...',
+                      style: TextStyle(
+                          color: Colors.white)), // Set text color to white
+                ] else ...[
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _busArrivals.length,
+                      itemBuilder: (context, index) {
+                        BusArrival arrival = _busArrivals[index];
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white
+                                .withOpacity(0.8), // Translucent background
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          margin: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  arrival.serviceNo,
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.purple),
+                                ),
+                                ...arrival.nextBus.map((NextBus nextBus) {
+                                  return Column(
+                                    children: [
+                                      Text(
+                                        'Arriving: ${nextBus.computeArrival()} min',
+                                        style: TextStyle(
+                                            fontSize: 16, color: Colors.orange),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Load: ${nextBus.getLoadDescription()}',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.black),
+                                          ),
+                                          SizedBox(width: 8),
+                                          _buildBusIcon(nextBus.type),
+                                          SizedBox(width: 8),
+                                          _buildWheelchairIcon(nextBus.feature),
+                                        ],
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  if (_selectedBusStop != null)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _launchMap(
+                            _selectedBusStop!.latitude,
+                            _selectedBusStop!.longitude,
+                          );
+                        },
+                        child: Text('Show Map'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue, // Set button color
+                          foregroundColor: Colors.white, // Set text color
+                        ),
+                      ),
+                    ),
+                ],
               ],
-            ],
-          ),
+            ),
+          ],
         ),
         bottomNavigationBar: MyBottomNavigationBar(selectedIndexNavBar: 0),
       ),
