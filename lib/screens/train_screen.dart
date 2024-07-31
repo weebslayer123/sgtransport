@@ -183,10 +183,12 @@ class _TrainScreenState extends State<TrainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text('Train', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           IconButton(
             icon: Icon(Icons.bookmark, color: Colors.white),
@@ -235,7 +237,11 @@ class _TrainScreenState extends State<TrainScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: MyBottomNavigationBar(selectedIndexNavBar: 1),
+      extendBody: true,
+      bottomNavigationBar: Container(
+        color: Colors.transparent,
+        child: MyBottomNavigationBar(selectedIndexNavBar: 1),
+      ),
       body: Stack(
         children: [
           Container(
@@ -251,6 +257,7 @@ class _TrainScreenState extends State<TrainScreen> {
           ),
           Column(
             children: [
+              SizedBox(height: 80.0), // Adjust the height as needed
               Padding(
                 padding: const EdgeInsets.symmetric(
                     vertical: 16.0, horizontal: 16.0),

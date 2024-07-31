@@ -93,10 +93,13 @@ class _TrainBookmarkScreenState extends State<TrainBookmarkScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title:
             Text('Bookmarked Stations', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         iconTheme: IconThemeData(
           color: Colors.white, // Change the back arrow color to white
         ),

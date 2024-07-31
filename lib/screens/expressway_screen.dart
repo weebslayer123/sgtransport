@@ -101,9 +101,12 @@ class _ExpressWayScreenState extends State<ExpressWayScreen> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
           title: Text('ExpressWay', style: TextStyle(color: Colors.white)),
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         ),
         body: Stack(
           children: [
@@ -117,6 +120,7 @@ class _ExpressWayScreenState extends State<ExpressWayScreen> {
             ),
             Column(
               children: [
+                SizedBox(height: 80.0), // Adjust the height as needed
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TypeAheadField(
@@ -269,7 +273,11 @@ class _ExpressWayScreenState extends State<ExpressWayScreen> {
             ),
           ],
         ),
-        bottomNavigationBar: MyBottomNavigationBar(selectedIndexNavBar: 3),
+        extendBody: true,
+        bottomNavigationBar: Container(
+          color: Colors.transparent,
+          child: MyBottomNavigationBar(selectedIndexNavBar: 3),
+        ),
       ),
     );
   }
