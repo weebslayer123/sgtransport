@@ -426,7 +426,7 @@ class _TrainScreenState extends State<TrainScreen> {
                 padding: const EdgeInsets.all(8.0),
                 child: ElevatedButton(
                   onPressed: _showMRTMap,
-                  child: Text('Show Map'),
+                  child: Text('Show Mapp'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue, // Set button color
                     foregroundColor: Colors.white, // Set text color
