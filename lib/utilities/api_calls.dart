@@ -72,21 +72,43 @@ class ApiCalls {
     String baseURL =
         'http://datamall2.mytransport.sg/ltaodataservice/BusRoutes?\$filter=ServiceNo eq \'$serviceNo\'';
 
-    try {
-      final response =
-          await http.get(Uri.parse(baseURL), headers: requestHeaders);
+    print('Fetching bus routes for service: $serviceNo');
+    print('API URL: $baseURL');
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        List<BusRoute> busRoutes = (data['value'] as List)
-            .map((busRouteJson) => BusRoute.fromJson(busRouteJson))
-            .toList();
-        return busRoutes;
-      } else {
-        print('Failed to load bus routes. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
-        throw Exception('Failed to load bus routes');
+    try {
+      List<BusRoute> busRoutes = [];
+      int skip = 0;
+
+      while (true) {
+        final response = await http.get(
+          Uri.parse('$baseURL&\$skip=$skip'),
+          headers: requestHeaders,
+        );
+
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          List<BusRoute> fetchedBusRoutes = (data['value'] as List)
+              .map((busRouteJson) => BusRoute.fromJson(busRouteJson))
+              .toList();
+
+          if (fetchedBusRoutes.isEmpty) {
+            break;
+          }
+
+          busRoutes.addAll(fetchedBusRoutes);
+          skip += fetchedBusRoutes.length;
+        } else {
+          print(
+              'Failed to load bus routes. Status code: ${response.statusCode}');
+          print('Response body: ${response.body}');
+          throw Exception('Failed to load bus routes');
+        }
       }
+
+      busRoutes =
+          busRoutes.where((route) => route.serviceNo == serviceNo).toList();
+      print('Fetched ${busRoutes.length} routes for service: $serviceNo');
+      return busRoutes;
     } catch (e) {
       print('Exception: $e');
       throw Exception('Failed to load bus routes');

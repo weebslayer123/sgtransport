@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../utilities/api_calls.dart';
-import '../utilities/firebase_calls.dart';
-import '../utilities/my_url_launcher.dart';
 import '../models/bus_arrival.dart';
 import '../models/bus_stop.dart';
 import '../widgets/navigation_bar.dart';
+import 'bus_route_screen.dart';
 
 class BusScreen extends StatefulWidget {
   const BusScreen({super.key});
@@ -21,6 +21,7 @@ class _BusScreenState extends State<BusScreen> {
   List<BusArrival> _busArrivals = [];
   bool _isLoadingArrivals = false;
   TextEditingController _searchController = TextEditingController();
+  final FirebaseAuth auth = FirebaseAuth.instance; // Define the auth object
 
   @override
   void initState() {
@@ -177,6 +178,19 @@ class _BusScreenState extends State<BusScreen> {
     return SizedBox.shrink();
   }
 
+  Color _getLoadColor(String load) {
+    switch (load) {
+      case 'Seats Available':
+        return Colors.green;
+      case 'Standing Available':
+        return Colors.yellow;
+      case 'Limited Standing':
+        return Colors.red;
+      default:
+        return Colors.black;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -184,12 +198,12 @@ class _BusScreenState extends State<BusScreen> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
-          title: Text('Bus Arrival',
-              style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black)), // Set AppBar text color to white
-          backgroundColor: Colors.white, // Set AppBar background color to black
+          title:
+              const Text('Bus Arrival', style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           actions: [
             IconButton(
               onPressed: () {
@@ -212,15 +226,12 @@ class _BusScreenState extends State<BusScreen> {
               ),
             ),
             Container(
-              color: Colors.black.withOpacity(0.5), // Dim the background image
+              color: Colors.black.withOpacity(
+                  0.7), // To make sure text is visible over the background
             ),
             Column(
               children: [
-                Text(
-                  'Hello ${auth.currentUser?.displayName}',
-                  style:
-                      TextStyle(color: Colors.white), // Set text color to white
-                ),
+                SizedBox(height: 80.0), // Adjust the height as needed
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Autocomplete<BusStop>(
@@ -253,33 +264,33 @@ class _BusScreenState extends State<BusScreen> {
                         controller: fieldTextEditingController,
                         focusNode: fieldFocusNode,
                         style: TextStyle(
-                            color: Colors.black), // Set text color to black
+                            color: Colors.white), // Set text color to white
                         decoration: InputDecoration(
                           filled: true, // Enable background color
-                          fillColor:
-                              Colors.white, // Set background color to white
-                          labelText: 'Search Bus Stop',
-                          labelStyle: TextStyle(
-                              color: Colors
-                                  .black), // Set label text color to black
+                          fillColor: Colors.black.withOpacity(
+                              0.5), // Set background color with opacity
+                          hintText: 'Search Bus Stop',
+                          hintStyle: TextStyle(
+                              color:
+                                  Colors.white), // Set hint text color to white
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                                color: Colors.black,
+                                color: Colors.white,
                                 width: 2.0), // Make the outline bolder
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                                color: Colors.black,
+                                color: Colors.white,
                                 width: 2.0), // Make the outline bolder
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                                color: Colors.black,
+                                color: Colors.white,
                                 width: 2.0), // Make the outline bolder
                           ),
-                          prefixIcon: Icon(Icons.search, color: Colors.black),
+                          prefixIcon: Icon(Icons.search, color: Colors.white),
                           suffixIcon: IconButton(
-                            icon: Icon(Icons.clear, color: Colors.black),
+                            icon: Icon(Icons.clear, color: Colors.white),
                             onPressed: () {
                               _searchController.clear();
                               setState(() {
@@ -332,8 +343,8 @@ class _BusScreenState extends State<BusScreen> {
                         BusArrival arrival = _busArrivals[index];
                         return Container(
                           decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(
-                                0.3), // Translucent grey background
+                            color: Colors.grey
+                                .withOpacity(0), // Translucent grey background
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -342,10 +353,33 @@ class _BusScreenState extends State<BusScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(
-                                  arrival.serviceNo,
-                                  style: TextStyle(
-                                      fontSize: 20, color: Colors.purple),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      arrival.serviceNo,
+                                      style: TextStyle(
+                                          fontSize: 20, color: Colors.purple),
+                                    ),
+                                  ],
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => BusRouteScreen(
+                                            serviceNo: arrival.serviceNo),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Colors.blue, // Set button color
+                                    foregroundColor:
+                                        Colors.white, // Set text color
+                                  ),
+                                  child: Text('View Route'),
                                 ),
                                 ...arrival.nextBus.map((NextBus nextBus) {
                                   return Column(
@@ -363,7 +397,8 @@ class _BusScreenState extends State<BusScreen> {
                                             'Load: ${nextBus.getLoadDescription()}',
                                             style: TextStyle(
                                                 fontSize: 14,
-                                                color: Colors.black),
+                                                color: _getLoadColor(nextBus
+                                                    .getLoadDescription())),
                                           ),
                                           SizedBox(width: 8),
                                           _buildBusIcon(nextBus.type),

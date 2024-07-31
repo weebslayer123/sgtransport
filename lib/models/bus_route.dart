@@ -1,21 +1,21 @@
 class BusRoute {
-  final String serviceNo;
-  final String operator;
-  final int direction;
-  final int stopSequence;
-  final String busStopCode;
-  final double distance;
-  final String wdFirstBus;
-  final String wdLastBus;
-  final String satFirstBus;
-  final String satLastBus;
-  final String sunFirstBus;
-  final String sunLastBus;
+  String serviceNo;
+  String operator;
+  String direction; // Add this line
+  int stopSequence;
+  String busStopCode;
+  String distance;
+  String wdFirstBus;
+  String wdLastBus;
+  String satFirstBus;
+  String satLastBus;
+  String sunFirstBus;
+  String sunLastBus;
 
   BusRoute({
     required this.serviceNo,
     required this.operator,
-    required this.direction,
+    required this.direction, // Add this line
     required this.stopSequence,
     required this.busStopCode,
     required this.distance,
@@ -29,18 +29,18 @@ class BusRoute {
 
   factory BusRoute.fromJson(Map<String, dynamic> json) {
     return BusRoute(
-      serviceNo: json['ServiceNo'],
-      operator: json['Operator'],
-      direction: json['Direction'],
-      stopSequence: json['StopSequence'],
-      busStopCode: json['BusStopCode'],
-      distance: json['Distance'],
-      wdFirstBus: json['WD_FirstBus'],
-      wdLastBus: json['WD_LastBus'],
-      satFirstBus: json['SAT_FirstBus'],
-      satLastBus: json['SAT_LastBus'],
-      sunFirstBus: json['SUN_FirstBus'],
-      sunLastBus: json['SUN_LastBus'],
+      serviceNo: json['ServiceNo'] as String,
+      operator: json['Operator'] as String,
+      direction: json['Direction'].toString(), // Convert to string
+      stopSequence: json['StopSequence'] as int,
+      busStopCode: json['BusStopCode'] as String,
+      distance: json['Distance'].toString(), // Convert to string
+      wdFirstBus: json['WD_FirstBus'].toString(), // Convert to string
+      wdLastBus: json['WD_LastBus'].toString(), // Convert to string
+      satFirstBus: json['SAT_FirstBus'].toString(), // Convert to string
+      satLastBus: json['SAT_LastBus'].toString(), // Convert to string
+      sunFirstBus: json['SUN_FirstBus'].toString(), // Convert to string
+      sunLastBus: json['SUN_LastBus'].toString(), // Convert to string
     );
   }
 }
