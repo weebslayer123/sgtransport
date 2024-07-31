@@ -5,6 +5,8 @@ import '../models/taxi_stand.dart';
 import '../widgets/navigation_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../screens/edit_taxi_fare_screen.dart';
+import 'package:intl/intl.dart';
 
 class TaxiScreen extends StatefulWidget {
   const TaxiScreen({Key? key}) : super(key: key);
@@ -17,7 +19,9 @@ class _TaxiScreenState extends State<TaxiScreen> {
   List<TaxiStand>? _allTaxiStands = [];
   TaxiStand? _selectedTaxiStand;
   final ApiCalls _apiCalls = ApiCalls();
-  final FirebaseAuth auth = FirebaseAuth.instance; // Ensure this is initialized
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  String _selectedSortOption =
+      'Date (Oldest to Newest)'; // Default sorting option
 
   @override
   void initState() {
@@ -52,7 +56,7 @@ class _TaxiScreenState extends State<TaxiScreen> {
         .map((snapshot) {
       double total = 0.0;
       for (var doc in snapshot.docs) {
-        total += double.parse(doc['fare']);
+        total += doc['fare'] is int ? doc['fare'].toDouble() : doc['fare'];
       }
       return total;
     });
@@ -89,6 +93,36 @@ class _TaxiScreenState extends State<TaxiScreen> {
         );
       },
     );
+  }
+
+  List<QueryDocumentSnapshot> _sortFares(List<QueryDocumentSnapshot> fares) {
+    switch (_selectedSortOption) {
+      case 'Date (Oldest to Newest)':
+        fares.sort((a, b) => DateFormat('dd/MM/yyyy')
+            .parse(a['date'])
+            .compareTo(DateFormat('dd/MM/yyyy').parse(b['date'])));
+        break;
+      case 'Date (Newest to Oldest)':
+        fares.sort((a, b) => DateFormat('dd/MM/yyyy')
+            .parse(b['date'])
+            .compareTo(DateFormat('dd/MM/yyyy').parse(a['date'])));
+        break;
+      case 'Fare (Cheapest to Most Expensive)':
+        fares.sort((a, b) => (a['fare'] as num).compareTo(b['fare'] as num));
+        break;
+      case 'Fare (Most Expensive to Cheapest)':
+        fares.sort((a, b) => (b['fare'] as num).compareTo(a['fare'] as num));
+        break;
+      case 'Origin (A to Z)':
+        fares.sort(
+            (a, b) => (a['origin'] as String).compareTo(b['origin'] as String));
+        break;
+      case 'Origin (Z to A)':
+        fares.sort(
+            (a, b) => (b['origin'] as String).compareTo(a['origin'] as String));
+        break;
+    }
+    return fares;
   }
 
   @override
@@ -188,6 +222,34 @@ class _TaxiScreenState extends State<TaxiScreen> {
                     ),
                   ),
                 ),
+                Container(
+                  margin: EdgeInsets.only(top: 8.0),
+                  child: DropdownButton<String>(
+                    value: _selectedSortOption,
+                    dropdownColor: Colors.black.withOpacity(0.8),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedSortOption = newValue!;
+                      });
+                    },
+                    items: <String>[
+                      'Date (Oldest to Newest)',
+                      'Date (Newest to Oldest)',
+                      'Fare (Cheapest to Most Expensive)',
+                      'Fare (Most Expensive to Cheapest)',
+                      'Origin (A to Z)',
+                      'Origin (Z to A)',
+                    ].map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value,
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
@@ -197,7 +259,8 @@ class _TaxiScreenState extends State<TaxiScreen> {
                       if (!snapshot.hasData) {
                         return Center(child: CircularProgressIndicator());
                       }
-                      final fares = snapshot.data!.docs;
+                      var fares = snapshot.data!.docs;
+                      fares = _sortFares(fares); // Apply sorting
                       if (fares.isEmpty) {
                         return Center(
                           child: Text(
@@ -217,6 +280,15 @@ class _TaxiScreenState extends State<TaxiScreen> {
                                 style: TextStyle(color: Colors.white70)),
                             trailing: Text('\$${fare['fare']}',
                                 style: TextStyle(color: Colors.white)),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      EditTaxiFareScreen(fare: fare),
+                                ),
+                              );
+                            },
                             onLongPress: () {
                               _showDeleteDialog(context, fare);
                             },
@@ -235,7 +307,8 @@ class _TaxiScreenState extends State<TaxiScreen> {
                         return Text('Total amount spent: \$0.0',
                             style: TextStyle(color: Colors.white));
                       }
-                      return Text('Total amount spent: \$${snapshot.data}',
+                      return Text(
+                          'Total amount spent: \$${snapshot.data!.toStringAsFixed(2)}',
                           style: TextStyle(color: Colors.white));
                     },
                   ),
