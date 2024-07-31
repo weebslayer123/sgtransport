@@ -102,6 +102,11 @@ class ApiCalls {
       headers: requestHeaders,
     );
 
+    print('API URL: $baseURL?TrainLine=$trainLine');
+    print('Request Headers: ${requestHeaders.toString()}');
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       List<CrowdDensity> crowdDensityList = (data['value'] as List)

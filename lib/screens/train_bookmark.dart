@@ -15,27 +15,43 @@ class TrainBookmarkScreen extends StatefulWidget {
 
 class _TrainBookmarkScreenState extends State<TrainBookmarkScreen> {
   List<CrowdDensity> _crowdDensityList = [];
-  bool _isLoading = true;
+  bool _isLoading = false;
   String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
-    _fetchCrowdDensityForBookmarks();
+    if (widget.bookmarkedStations.isNotEmpty) {
+      _fetchCrowdDensityForBookmarks();
+    }
   }
 
   Future<void> _fetchCrowdDensityForBookmarks() async {
+    setState(() {
+      _isLoading = true;
+    });
     ApiCalls apiCalls = ApiCalls();
     try {
-      List<CrowdDensity> crowdDensityList =
-          await apiCalls.fetchCrowdDensity('');
+      // Extract unique train lines from bookmarked stations
+      List<String> trainLines = widget.bookmarkedStations
+          .map((station) => station.trainLineCode)
+          .toSet()
+          .toList();
+
+      List<CrowdDensity> allCrowdDensityList = [];
+      for (String trainLine in trainLines) {
+        List<CrowdDensity> crowdDensityList =
+            await apiCalls.fetchCrowdDensity(trainLine);
+        allCrowdDensityList.addAll(crowdDensityList);
+      }
+
       setState(() {
-        _crowdDensityList = crowdDensityList;
+        _crowdDensityList = allCrowdDensityList;
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error fetching crowd density';
+        _errorMessage = 'Error fetching crowd density: $e';
         _isLoading = false;
       });
     }
@@ -78,8 +94,12 @@ class _TrainBookmarkScreenState extends State<TrainBookmarkScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bookmarked Stations'),
+        title:
+            Text('Bookmarked Stations', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
+        iconTheme: IconThemeData(
+          color: Colors.white, // Change the back arrow color to white
+        ),
       ),
       body: Stack(
         children: [
@@ -100,49 +120,57 @@ class _TrainBookmarkScreenState extends State<TrainBookmarkScreen> {
                   ? Center(
                       child: Text(_errorMessage,
                           style: TextStyle(color: Colors.white)))
-                  : ListView.builder(
-                      itemCount: widget.bookmarkedStations.length,
-                      itemBuilder: (context, index) {
-                        final station = widget.bookmarkedStations[index];
-                        final crowdDensity =
-                            _getCrowdDensityForStation(station.stnCode);
-                        final crowdLevel = _formatCrowdLevel(
-                            crowdDensity?.crowdLevel ?? 'N/A');
-                        final crowdColor = _getCrowdLevelColor(
-                            crowdDensity?.crowdLevel ?? 'n/a');
-
-                        return ListTile(
-                          title: Text(
-                            '${station.stnName} (${station.stnCode})',
+                  : widget.bookmarkedStations.isEmpty
+                      ? Center(
+                          child: Text(
+                            'No bookmarked stations.',
                             style: TextStyle(color: Colors.white),
                           ),
-                          subtitle: RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'Crowd Level: ',
-                                  style: TextStyle(color: Colors.white),
+                        )
+                      : ListView.builder(
+                          itemCount: widget.bookmarkedStations.length,
+                          itemBuilder: (context, index) {
+                            final station = widget.bookmarkedStations[index];
+                            final crowdDensity =
+                                _getCrowdDensityForStation(station.stnCode);
+                            final crowdLevel = _formatCrowdLevel(
+                                crowdDensity?.crowdLevel ?? 'N/A');
+                            final crowdColor = _getCrowdLevelColor(
+                                crowdDensity?.crowdLevel ?? 'n/a');
+
+                            return ListTile(
+                              title: Text(
+                                '${station.stnName} (${station.stnCode})',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              subtitle: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'Crowd Level: ',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    TextSpan(
+                                      text: crowdLevel,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: crowdColor,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                TextSpan(
-                                  text: crowdLevel,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: crowdColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          trailing: IconButton(
-                            icon: Icon(Icons.bookmark, color: Colors.yellow),
-                            onPressed: () {
-                              // Optionally implement unbookmarking logic here if needed
-                            },
-                          ),
-                          tileColor: Colors.black,
-                        );
-                      },
-                    ),
+                              ),
+                              trailing: IconButton(
+                                icon:
+                                    Icon(Icons.bookmark, color: Colors.yellow),
+                                onPressed: () {
+                                  // Optionally implement unbookmarking logic here if needed
+                                },
+                              ),
+                              tileColor: Colors.black,
+                            );
+                          },
+                        ),
         ],
       ),
     );

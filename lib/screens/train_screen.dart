@@ -265,8 +265,8 @@ class _TrainScreenState extends State<TrainScreen> {
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.white
-                              .withOpacity(0.8), // Opaque background
+                          color:
+                              Colors.black.withOpacity(0.5), // Dark background
                           border: Border.all(color: Colors.grey),
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -288,15 +288,15 @@ class _TrainScreenState extends State<TrainScreen> {
                               controller: textEditingController,
                               focusNode: focusNode,
                               style:
-                                  TextStyle(color: Colors.black), // Black text
+                                  TextStyle(color: Colors.white), // White text
                               decoration: InputDecoration(
                                 hintText: 'Enter Train Station',
-                                hintStyle: TextStyle(color: Colors.black),
+                                hintStyle: TextStyle(color: Colors.white70),
                                 border: InputBorder.none,
                                 prefixIcon:
-                                    Icon(Icons.search, color: Colors.black),
+                                    Icon(Icons.search, color: Colors.white),
                                 suffixIcon: IconButton(
-                                  icon: Icon(Icons.clear, color: Colors.black),
+                                  icon: Icon(Icons.clear, color: Colors.white),
                                   onPressed: () {
                                     textEditingController.clear();
                                     setState(() {
