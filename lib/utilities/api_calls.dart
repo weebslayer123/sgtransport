@@ -6,6 +6,7 @@ import '../models/train_crowd_density.dart';
 import '../models/taxi_stand.dart';
 import '../models/travel_time_segment.dart';
 import '../models/bus_route.dart'; // Add this line to include the bus route model
+import '../models/faulty_traffic_light.dart'; // Add this line to include the faulty traffic light model
 
 class ApiCalls {
   Map<String, String> requestHeaders = {
@@ -189,6 +190,34 @@ class ApiCalls {
     } catch (e) {
       print('Exception: $e');
       throw Exception('Failed to load travel times');
+    }
+  }
+
+  // Fetch Faulty Traffic Lights
+  Future<List<FaultyTrafficLight>> fetchFaultyTrafficLights() async {
+    String baseURL =
+        'http://datamall2.mytransport.sg/ltaodataservice/FaultyTrafficLights';
+
+    try {
+      final response =
+          await http.get(Uri.parse(baseURL), headers: requestHeaders);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        List<FaultyTrafficLight> faultyTrafficLights = (data['value'] as List)
+            .map((faultyTrafficLightJson) =>
+                FaultyTrafficLight.fromJson(faultyTrafficLightJson))
+            .toList();
+        return faultyTrafficLights;
+      } else {
+        print(
+            'Failed to load faulty traffic lights. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to load faulty traffic lights');
+      }
+    } catch (e) {
+      print('Exception: $e');
+      throw Exception('Failed to load faulty traffic lights');
     }
   }
 }

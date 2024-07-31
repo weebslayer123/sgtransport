@@ -25,6 +25,9 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
         case 3:
           Navigator.pushReplacementNamed(context, '/expressway');
           break;
+        case 4:
+          Navigator.pushReplacementNamed(context, '/faulty_traffic');
+          break;
       }
     });
   }
@@ -49,6 +52,10 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
         BottomNavigationBarItem(
           label: 'ExpressWay',
           icon: Icon(Icons.map),
+        ),
+        BottomNavigationBarItem(
+          label: 'Traffic Light',
+          icon: Icon(Icons.traffic),
         ),
       ],
       currentIndex: widget.selectedIndexNavBar,

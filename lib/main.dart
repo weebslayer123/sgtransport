@@ -9,6 +9,7 @@ import '../screens/train_screen.dart';
 import '../screens/taxi_screen.dart';
 import '../screens/add_taxi_screen.dart';
 import '../screens/expressway_screen.dart';
+import '../screens/faulty_traffic.dart'; // Import the Faulty Traffic screen
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +34,8 @@ class MyApp extends StatelessWidget {
         '/taxi': (context) => const TaxiScreen(),
         '/add_taxi': (context) => AddTaxiScreen(),
         '/expressway': (context) => const ExpressWayScreen(),
+        '/faulty_traffic': (context) =>
+            const FaultyTrafficLightsScreen(), // Add the Faulty Traffic route
       },
     );
   }
