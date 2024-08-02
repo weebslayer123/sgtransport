@@ -45,6 +45,8 @@ dependencies:
   geocoding: ^2.0.5
   flutter_typeahead: ^4.0.0
   mask_text_input_formatter: ^2.0.0
+  shared_preferences: ^2.0.13
+
 
 
 dev_dependencies:

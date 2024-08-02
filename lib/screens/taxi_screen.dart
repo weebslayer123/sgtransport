@@ -7,6 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../screens/edit_taxi_fare_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'taxi_bookmark.dart'; // Import the bookmarks screen
 
 class TaxiScreen extends StatefulWidget {
   const TaxiScreen({Key? key}) : super(key: key);
@@ -22,11 +24,20 @@ class _TaxiScreenState extends State<TaxiScreen> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   String _selectedSortOption =
       'Date (Oldest to Newest)'; // Default sorting option
+  List<String> bookmarkedTaxiStands = []; // Add this line
 
   @override
   void initState() {
     super.initState();
     fetchTaxiStands();
+    _loadBookmarkedStands(); // Add this line
+  }
+
+  Future<void> _loadBookmarkedStands() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      bookmarkedTaxiStands = prefs.getStringList('bookmarkedTaxiStands') ?? [];
+    });
   }
 
   Future<void> fetchTaxiStands() async {
@@ -125,6 +136,21 @@ class _TaxiScreenState extends State<TaxiScreen> {
     return fares;
   }
 
+  Future<void> _toggleBookmark(TaxiStand stand) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> bookmarkedStands =
+        prefs.getStringList('bookmarkedTaxiStands') ?? [];
+    if (bookmarkedStands.contains(stand.name)) {
+      bookmarkedStands.remove(stand.name);
+    } else {
+      bookmarkedStands.add(stand.name);
+    }
+    await prefs.setStringList('bookmarkedTaxiStands', bookmarkedStands);
+    setState(() {
+      bookmarkedTaxiStands = bookmarkedStands;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -132,9 +158,27 @@ class _TaxiScreenState extends State<TaxiScreen> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        extendBodyBehindAppBar: true, // Extend body behind AppBar
         appBar: AppBar(
-          title: Text('Taxi', style: TextStyle(color: Colors.black)),
-          backgroundColor: Colors.white,
+          title: const Text('Taxi', style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: Icon(Icons.bookmark, color: Colors.white),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BookmarksScreen(
+                      bookmarkedTaxiStands: bookmarkedTaxiStands,
+                      allTaxiStands: _allTaxiStands ?? [],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
         body: Stack(
           children: [
@@ -152,78 +196,132 @@ class _TaxiScreenState extends State<TaxiScreen> {
             ),
             Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      16.0, 32.0, 16.0, 8.0), // Adjusted top padding
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Hello ${auth.currentUser?.displayName}',
-                      style: TextStyle(color: Colors.white, fontSize: 14),
-                    ),
-                  ),
-                ),
+                SizedBox(height: 80.0), // Adjust the height as needed
                 Padding(
                   padding: const EdgeInsets.symmetric(
                       vertical: 8.0, horizontal: 16.0),
                   child: Center(
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Autocomplete<TaxiStand>(
-                        optionsBuilder: (TextEditingValue textEditingValue) {
-                          if (textEditingValue.text.isEmpty) {
-                            return const Iterable<TaxiStand>.empty();
-                          }
-                          return _allTaxiStands!.where((TaxiStand stand) {
-                            return stand.name
-                                .toLowerCase()
-                                .contains(textEditingValue.text.toLowerCase());
-                          });
-                        },
-                        displayStringForOption: (TaxiStand option) =>
-                            option.name,
-                        onSelected: (TaxiStand selection) {
-                          setState(() {
-                            _selectedTaxiStand = selection;
-                          });
-                        },
-                        fieldViewBuilder: (BuildContext context,
-                            TextEditingController textEditingController,
-                            FocusNode focusNode,
-                            VoidCallback onFieldSubmitted) {
-                          return TextField(
-                            controller: textEditingController,
-                            focusNode: focusNode,
-                            style: TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: 'Search Taxi Stand',
-                              hintStyle: TextStyle(color: Colors.white70),
-                              border: InputBorder.none,
-                              prefixIcon:
-                                  Icon(Icons.search, color: Colors.white),
-                              suffixIcon: IconButton(
-                                icon: Icon(Icons.clear, color: Colors.white),
-                                onPressed: () {
-                                  textEditingController.clear();
-                                  setState(() {
-                                    _selectedTaxiStand = null;
-                                  });
-                                },
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Hello ${auth.currentUser?.displayName}',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        SizedBox(height: 8.0), // Adjusted the spacing here
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.black
+                                .withOpacity(0.5), // Dark background
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Autocomplete<TaxiStand>(
+                            optionsBuilder:
+                                (TextEditingValue textEditingValue) {
+                              if (textEditingValue.text.isEmpty) {
+                                return const Iterable<TaxiStand>.empty();
+                              }
+                              return _allTaxiStands!.where((TaxiStand stand) {
+                                return stand.name.toLowerCase().contains(
+                                    textEditingValue.text.toLowerCase());
+                              });
+                            },
+                            displayStringForOption: (TaxiStand option) =>
+                                option.name,
+                            onSelected: (TaxiStand selection) {
+                              setState(() {
+                                _selectedTaxiStand = selection;
+                              });
+                            },
+                            fieldViewBuilder: (BuildContext context,
+                                TextEditingController textEditingController,
+                                FocusNode focusNode,
+                                VoidCallback onFieldSubmitted) {
+                              return TextField(
+                                controller: textEditingController,
+                                focusNode: focusNode,
+                                style: TextStyle(color: Colors.white),
+                                decoration: InputDecoration(
+                                  hintText: 'Search Taxi Stand',
+                                  hintStyle: TextStyle(color: Colors.white70),
+                                  border: InputBorder.none,
+                                  prefixIcon:
+                                      Icon(Icons.search, color: Colors.white),
+                                  suffixIcon: IconButton(
+                                    icon:
+                                        Icon(Icons.clear, color: Colors.white),
+                                    onPressed: () {
+                                      textEditingController.clear();
+                                      setState(() {
+                                        _selectedTaxiStand = null;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                            optionsViewBuilder: (BuildContext context,
+                                AutocompleteOnSelected<TaxiStand> onSelected,
+                                Iterable<TaxiStand> options) {
+                              return Align(
+                                alignment: Alignment.topLeft,
+                                child: Material(
+                                  color: Colors.black.withOpacity(
+                                      0.8), // Adjust dropdown color
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width -
+                                        32, // Adjust the width to match the TextField
+                                    child: ListView.builder(
+                                      padding: const EdgeInsets.all(8.0),
+                                      itemCount: options.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        final TaxiStand option =
+                                            options.elementAt(index);
+                                        final isBookmarked =
+                                            bookmarkedTaxiStands
+                                                .contains(option.name);
+                                        return GestureDetector(
+                                          onTap: () {
+                                            onSelected(option);
+                                          },
+                                          child: ListTile(
+                                            title: Text(option.name,
+                                                style: TextStyle(
+                                                    color: Colors.white)),
+                                            trailing: IconButton(
+                                              icon: Icon(
+                                                isBookmarked
+                                                    ? Icons.bookmark
+                                                    : Icons.bookmark_border,
+                                                color: isBookmarked
+                                                    ? Colors.yellow
+                                                    : Colors.white,
+                                              ),
+                                              onPressed: () {
+                                                _toggleBookmark(option);
+                                              },
+                                            ),
+                                            tileColor: Colors.black,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.only(top: 8.0),
+                  margin:
+                      EdgeInsets.only(top: 8.0), // Reduced the top margin here
                   child: DropdownButton<String>(
                     value: _selectedSortOption,
                     dropdownColor: Colors.black.withOpacity(0.8),

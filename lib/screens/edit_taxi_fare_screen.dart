@@ -65,13 +65,16 @@ class _EditTaxiFareScreenState extends State<EditTaxiFareScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true, // Extend body behind AppBar
       appBar: AppBar(
         title: Text(
           'Edit Taxi Fare',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Colors.white), // Change text color to white
         ),
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Colors.black),
+        backgroundColor: Colors.transparent, // Make AppBar transparent
+        elevation: 0, // Remove AppBar elevation
+        iconTheme:
+            IconThemeData(color: Colors.white), // Change icon color to white
       ),
       body: GestureDetector(
         onTap: () {
@@ -91,6 +94,7 @@ class _EditTaxiFareScreenState extends State<EditTaxiFareScreen> {
               color: Colors.black.withOpacity(0.7), // To ensure form visibility
             ),
             SingleChildScrollView(
+              padding: EdgeInsets.only(top: 80.0), // Add padding to the top
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Form(
