@@ -7,6 +7,8 @@ import '../models/bus_arrival.dart';
 import '../models/bus_stop.dart';
 import '../widgets/navigation_bar.dart';
 import 'bus_route_screen.dart';
+import 'bus_bookmark.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BusScreen extends StatefulWidget {
   const BusScreen({super.key});
@@ -22,11 +24,14 @@ class _BusScreenState extends State<BusScreen> {
   bool _isLoadingArrivals = false;
   TextEditingController _searchController = TextEditingController();
   final FirebaseAuth auth = FirebaseAuth.instance; // Define the auth object
+  List<String> _bookmarkedBusStops = [];
+  List<String> _bookmarkedBusNumbers = [];
 
   @override
   void initState() {
     super.initState();
     _fetchAllBusStops();
+    _loadBookmarks();
   }
 
   Future<void> _fetchAllBusStops() async {
@@ -191,6 +196,50 @@ class _BusScreenState extends State<BusScreen> {
     }
   }
 
+  Future<void> _loadBookmarks() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _bookmarkedBusStops = prefs.getStringList('bookmarkedBusStops') ?? [];
+      _bookmarkedBusNumbers = prefs.getStringList('bookmarkedBusNumbers') ?? [];
+    });
+  }
+
+  Future<void> _saveBookmarks() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('bookmarkedBusStops', _bookmarkedBusStops);
+    await prefs.setStringList('bookmarkedBusNumbers', _bookmarkedBusNumbers);
+  }
+
+  void _toggleBusStopBookmark(BusStop busStop) {
+    setState(() {
+      if (_bookmarkedBusStops.contains(busStop.busStopCode)) {
+        _bookmarkedBusStops.remove(busStop.busStopCode);
+      } else {
+        _bookmarkedBusStops.add(busStop.busStopCode);
+      }
+    });
+    _saveBookmarks();
+  }
+
+  void _toggleBusNumberBookmark(String busNumber) {
+    setState(() {
+      if (_bookmarkedBusNumbers.contains(busNumber)) {
+        _bookmarkedBusNumbers.remove(busNumber);
+      } else {
+        _bookmarkedBusNumbers.add(busNumber);
+      }
+    });
+    _saveBookmarks();
+  }
+
+  bool _isBusStopBookmarked(BusStop busStop) {
+    return _bookmarkedBusStops.contains(busStop.busStopCode);
+  }
+
+  bool _isBusNumberBookmarked(String busNumber) {
+    return _bookmarkedBusNumbers.contains(busNumber);
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -205,6 +254,20 @@ class _BusScreenState extends State<BusScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           actions: [
+            IconButton(
+              icon: const Icon(Icons.bookmark),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BusBookmarkScreen(
+                      bookmarkedBusStops: _bookmarkedBusStops,
+                      bookmarkedBusNumbers: _bookmarkedBusNumbers,
+                    ),
+                  ),
+                );
+              },
+            ),
             IconButton(
               onPressed: () {
                 auth.signOut();
@@ -312,19 +375,31 @@ class _BusScreenState extends State<BusScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            child: Text(
-                              '${_selectedBusStop!.busStopCode} - ${_selectedBusStop!.description}',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 16),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '${_selectedBusStop!.busStopCode} - ${_selectedBusStop!.description}',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  _isBusStopBookmarked(_selectedBusStop!)
+                                      ? Icons.bookmark
+                                      : Icons.bookmark_border,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  _toggleBusStopBookmark(_selectedBusStop!);
+                                },
+                              ),
+                            ],
                           ),
-                          Container(
-                            child: Text(
-                              _selectedBusStop!.roadName,
-                              style: TextStyle(
-                                  color: Colors.white70, fontSize: 14),
-                            ),
+                          Text(
+                            _selectedBusStop!.roadName,
+                            style:
+                                TextStyle(color: Colors.white70, fontSize: 14),
                           ),
                         ],
                       ),
@@ -343,8 +418,8 @@ class _BusScreenState extends State<BusScreen> {
                         BusArrival arrival = _busArrivals[index];
                         return Container(
                           decoration: BoxDecoration(
-                            color: Colors.grey
-                                .withOpacity(0), // Translucent grey background
+                            color: Colors.grey.withOpacity(
+                                0.3), // Translucent grey background
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -353,13 +428,30 @@ class _BusScreenState extends State<BusScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                Stack(
                                   children: [
-                                    Text(
-                                      arrival.serviceNo,
-                                      style: TextStyle(
-                                          fontSize: 20, color: Colors.purple),
+                                    Center(
+                                      child: Text(
+                                        arrival.serviceNo,
+                                        style: TextStyle(
+                                            fontSize: 20, color: Colors.purple),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      right: 0,
+                                      child: IconButton(
+                                        icon: Icon(
+                                          _isBusNumberBookmarked(
+                                                  arrival.serviceNo)
+                                              ? Icons.bookmark
+                                              : Icons.bookmark_border,
+                                          color: Colors.white,
+                                        ),
+                                        onPressed: () {
+                                          _toggleBusNumberBookmark(
+                                              arrival.serviceNo);
+                                        },
+                                      ),
                                     ),
                                   ],
                                 ),
