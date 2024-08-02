@@ -5,8 +5,9 @@ import '../models/bus_stop.dart';
 import '../models/train_crowd_density.dart';
 import '../models/taxi_stand.dart';
 import '../models/travel_time_segment.dart';
-import '../models/bus_route.dart'; // Add this line to include the bus route model
-import '../models/faulty_traffic_light.dart'; // Add this line to include the faulty traffic light model
+import '../models/bus_route.dart';
+import '../models/faulty_traffic_light.dart';
+import '../models/traffic_incident.dart';
 
 class ApiCalls {
   Map<String, String> requestHeaders = {
@@ -240,6 +241,34 @@ class ApiCalls {
     } catch (e) {
       print('Exception: $e');
       throw Exception('Failed to load faulty traffic lights');
+    }
+  }
+
+  // Fetch Traffic Incidents
+  Future<List<TrafficIncident>> fetchTrafficIncidents() async {
+    String baseURL =
+        'http://datamall2.mytransport.sg/ltaodataservice/TrafficIncidents';
+
+    try {
+      final response =
+          await http.get(Uri.parse(baseURL), headers: requestHeaders);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        List<TrafficIncident> trafficIncidents = (data['value'] as List)
+            .map((trafficIncidentJson) =>
+                TrafficIncident.fromJson(trafficIncidentJson))
+            .toList();
+        return trafficIncidents;
+      } else {
+        print(
+            'Failed to load traffic incidents. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to load traffic incidents');
+      }
+    } catch (e) {
+      print('Exception: $e');
+      throw Exception('Failed to load traffic incidents');
     }
   }
 }

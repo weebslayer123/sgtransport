@@ -10,8 +10,8 @@ class MyBottomNavigationBar extends StatefulWidget {
 
 class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   void _onTap(int index) {
-    widget.selectedIndexNavBar = index;
     setState(() {
+      widget.selectedIndexNavBar = index;
       switch (index) {
         case 0:
           Navigator.pushReplacementNamed(context, '/bus');
