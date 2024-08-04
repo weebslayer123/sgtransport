@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../models/travel_time_segment.dart';
 
 class BookmarkedExpresswaysScreen extends StatefulWidget {
   const BookmarkedExpresswaysScreen({Key? key}) : super(key: key);
@@ -56,7 +55,7 @@ class _BookmarkedExpresswaysScreenState
             ),
           ),
           Container(
-            color: Colors.black.withOpacity(0.7), // Ensure text visibility
+            color: Colors.black.withOpacity(0.7),
           ),
           if (bookmarkedExpressways.isEmpty)
             Center(

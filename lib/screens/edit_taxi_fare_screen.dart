@@ -65,16 +65,15 @@ class _EditTaxiFareScreenState extends State<EditTaxiFareScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true, // Extend body behind AppBar
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
           'Edit Taxi Fare',
-          style: TextStyle(color: Colors.white), // Change text color to white
+          style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.transparent, // Make AppBar transparent
-        elevation: 0, // Remove AppBar elevation
-        iconTheme:
-            IconThemeData(color: Colors.white), // Change icon color to white
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: GestureDetector(
         onTap: () {
@@ -85,16 +84,16 @@ class _EditTaxiFareScreenState extends State<EditTaxiFareScreen> {
             Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('images/addtaxi.png'), // Image path
+                  image: AssetImage('images/addtaxi.png'),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
             Container(
-              color: Colors.black.withOpacity(0.7), // To ensure form visibility
+              color: Colors.black.withOpacity(0.7),
             ),
             SingleChildScrollView(
-              padding: EdgeInsets.only(top: 80.0), // Add padding to the top
+              padding: EdgeInsets.only(top: 80.0),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Form(
@@ -195,8 +194,8 @@ class _EditTaxiFareScreenState extends State<EditTaxiFareScreen> {
                         onPressed: _updateTaxiFare,
                         child: Text('Update'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue, // Set button color
-                          foregroundColor: Colors.white, // Set text color
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
                         ),
                       ),
                     ],

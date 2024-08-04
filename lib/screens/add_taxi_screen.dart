@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../models/taxi_fare.dart';
-import '../utilities/firebase_calls.dart';
 
 class AddTaxiScreen extends StatefulWidget {
   @override
@@ -55,16 +54,15 @@ class _AddTaxiScreenState extends State<AddTaxiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true, // Extend body behind AppBar
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
           'Add Taxi Fare',
-          style: TextStyle(color: Colors.white), // Change text color to white
+          style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.transparent, // Make AppBar transparent
-        elevation: 0, // Remove AppBar elevation
-        iconTheme:
-            IconThemeData(color: Colors.white), // Change icon color to white
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: GestureDetector(
         onTap: () {
@@ -75,16 +73,16 @@ class _AddTaxiScreenState extends State<AddTaxiScreen> {
             Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('images/taxiadd.png'), // Image path
+                  image: AssetImage('images/taxiadd.png'),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
             Container(
-              color: Colors.black.withOpacity(0.7), // To ensure form visibility
+              color: Colors.black.withOpacity(0.7),
             ),
             SingleChildScrollView(
-              padding: EdgeInsets.only(top: 80.0), // Add padding to the top
+              padding: EdgeInsets.only(top: 80.0),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Form(
@@ -185,8 +183,8 @@ class _AddTaxiScreenState extends State<AddTaxiScreen> {
                         onPressed: _addTaxiFare,
                         child: Text('Add'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue, // Set button color
-                          foregroundColor: Colors.white, // Set text color
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
                         ),
                       ),
                     ],

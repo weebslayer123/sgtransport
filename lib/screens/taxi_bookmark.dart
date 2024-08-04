@@ -63,14 +63,13 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                    'images/taxibookmark.png'), // Path to your background image
+                image: AssetImage('images/taxibookmark.png'),
                 fit: BoxFit.cover,
               ),
             ),
           ),
           Container(
-            color: Colors.black.withOpacity(0.7), // To ensure list visibility
+            color: Colors.black.withOpacity(0.7),
           ),
           if (_bookmarkedStands.isEmpty)
             Center(
@@ -81,7 +80,7 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
             )
           else
             Padding(
-              padding: EdgeInsets.only(top: 20.0), // Add padding to the top
+              padding: EdgeInsets.only(top: 20.0),
               child: ListView.builder(
                 itemCount: _bookmarkedStands.length,
                 itemBuilder: (context, index) {

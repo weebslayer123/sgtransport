@@ -22,15 +22,14 @@ class _TaxiScreenState extends State<TaxiScreen> {
   TaxiStand? _selectedTaxiStand;
   final ApiCalls _apiCalls = ApiCalls();
   final FirebaseAuth auth = FirebaseAuth.instance;
-  String _selectedSortOption =
-      'Date (Oldest to Newest)'; // Default sorting option
-  List<String> bookmarkedTaxiStands = []; // Add this line
+  String _selectedSortOption = 'Date (Oldest to Newest)';
+  List<String> bookmarkedTaxiStands = [];
 
   @override
   void initState() {
     super.initState();
     fetchTaxiStands();
-    _loadBookmarkedStands(); // Add this line
+    _loadBookmarkedStands();
   }
 
   Future<void> _loadBookmarkedStands() async {
@@ -158,7 +157,7 @@ class _TaxiScreenState extends State<TaxiScreen> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-        extendBodyBehindAppBar: true, // Extend body behind AppBar
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
           title: const Text('Taxi', style: TextStyle(color: Colors.white)),
           backgroundColor: Colors.transparent,
@@ -191,12 +190,11 @@ class _TaxiScreenState extends State<TaxiScreen> {
               ),
             ),
             Container(
-              color: Colors.black.withOpacity(
-                  0.7), // To make sure text is visible over the background
+              color: Colors.black.withOpacity(0.7),
             ),
             Column(
               children: [
-                SizedBox(height: 80.0), // Adjust the height as needed
+                SizedBox(height: 80.0),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                       vertical: 8.0, horizontal: 16.0),
@@ -207,12 +205,11 @@ class _TaxiScreenState extends State<TaxiScreen> {
                           'Hello ${auth.currentUser?.displayName}',
                           style: TextStyle(color: Colors.white),
                         ),
-                        SizedBox(height: 8.0), // Adjusted the spacing here
+                        SizedBox(height: 8.0),
                         Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: Colors.black
-                                .withOpacity(0.5), // Dark background
+                            color: Colors.black.withOpacity(0.5),
                             border: Border.all(color: Colors.grey),
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -268,11 +265,10 @@ class _TaxiScreenState extends State<TaxiScreen> {
                               return Align(
                                 alignment: Alignment.topLeft,
                                 child: Material(
-                                  color: Colors.black.withOpacity(
-                                      0.8), // Adjust dropdown color
+                                  color: Colors.black.withOpacity(0.8),
                                   child: Container(
-                                    width: MediaQuery.of(context).size.width -
-                                        32, // Adjust the width to match the TextField
+                                    width:
+                                        MediaQuery.of(context).size.width - 32,
                                     child: ListView.builder(
                                       padding: const EdgeInsets.all(8.0),
                                       itemCount: options.length,
@@ -320,8 +316,7 @@ class _TaxiScreenState extends State<TaxiScreen> {
                   ),
                 ),
                 Container(
-                  margin:
-                      EdgeInsets.only(top: 8.0), // Reduced the top margin here
+                  margin: EdgeInsets.only(top: 8.0),
                   child: DropdownButton<String>(
                     value: _selectedSortOption,
                     dropdownColor: Colors.black.withOpacity(0.8),
@@ -358,7 +353,7 @@ class _TaxiScreenState extends State<TaxiScreen> {
                         return Center(child: CircularProgressIndicator());
                       }
                       var fares = snapshot.data!.docs;
-                      fares = _sortFares(fares); // Apply sorting
+                      fares = _sortFares(fares);
                       if (fares.isEmpty) {
                         return Center(
                           child: Text(
@@ -419,8 +414,8 @@ class _TaxiScreenState extends State<TaxiScreen> {
                     },
                     child: Text('Add Taxi Fare'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Set button color
-                      foregroundColor: Colors.white, // Set text color
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
                     ),
                   ),
                 ),
@@ -456,8 +451,8 @@ class _TaxiScreenState extends State<TaxiScreen> {
                     },
                     child: Text('Show Map'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Set button color
-                      foregroundColor: Colors.white, // Set text color
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
                     ),
                   ),
                 ),

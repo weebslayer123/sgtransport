@@ -82,7 +82,7 @@ class _ExpressWayScreenState extends State<ExpressWayScreen> {
       if (segment.startPoint == startPoint && segment.endPoint == endPoint) {
         totalTime += segment.estTime;
         found = true;
-        break; // Assuming direct segment between start and end
+        break;
       }
     }
 
@@ -104,7 +104,7 @@ class _ExpressWayScreenState extends State<ExpressWayScreen> {
           'estimatedTravelTime': estimatedTravelTime,
         });
       });
-      saveSearchHistory(); // Save the updated search history
+      saveSearchHistory();
     }
   }
 
@@ -162,14 +162,14 @@ class _ExpressWayScreenState extends State<ExpressWayScreen> {
         bookmarkedExpressways.add(expressway);
       });
     }
-    saveBookmarkedExpressways(); // Save the updated bookmarks
+    saveBookmarkedExpressways();
   }
 
   void deleteHistoryItem(int index) {
     setState(() {
       searchHistory.removeAt(index);
     });
-    saveSearchHistory(); // Save the updated search history
+    saveSearchHistory();
   }
 
   void _showDeleteDialog(BuildContext context, int index) {
@@ -208,7 +208,7 @@ class _ExpressWayScreenState extends State<ExpressWayScreen> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-        extendBodyBehindAppBar: true, // Extend body behind AppBar
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
           title: Text('ExpressWay', style: TextStyle(color: Colors.white)),
           backgroundColor: Colors.transparent,
@@ -232,17 +232,17 @@ class _ExpressWayScreenState extends State<ExpressWayScreen> {
             Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('images/expressway_bg.jpg'),
+                  image: AssetImage('images/expressway.png'),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
             Container(
-              color: Colors.black.withOpacity(0.7), // Ensure text visibility
+              color: Colors.black.withOpacity(0.7),
             ),
             Column(
               children: [
-                SizedBox(height: 80.0), // Adjust height for AppBar
+                SizedBox(height: 80.0),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                       vertical: 8.0, horizontal: 16.0),
@@ -253,7 +253,7 @@ class _ExpressWayScreenState extends State<ExpressWayScreen> {
                           'Hello ${auth.currentUser?.displayName}',
                           style: TextStyle(color: Colors.white),
                         ),
-                        SizedBox(height: 8.0), // Adjusted the spacing here
+                        SizedBox(height: 8.0),
                         Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
