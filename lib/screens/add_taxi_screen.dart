@@ -26,13 +26,16 @@ class _AddTaxiScreenState extends State<AddTaxiScreen> {
 
   Future<void> _addTaxiFare() async {
     if (_formKey.currentState?.validate() ?? false) {
-      await FirebaseFirestore.instance.collection('fares').add({
-        'origin': _originController.text,
-        'dest': _destinationController.text,
-        'fare': double.parse(_fareController.text),
-        'date': _dateController.text,
-        'userid': 'YOUR_USER_ID',
-      });
+      final taxiFare = TaxiFare(
+        origin: _originController.text,
+        dest: _destinationController.text,
+        fare: double.parse(_fareController.text),
+        date: _dateController.text,
+      );
+
+      await FirebaseFirestore.instance
+          .collection('fares')
+          .add(taxiFare.toMap());
       Navigator.pop(context);
     }
   }

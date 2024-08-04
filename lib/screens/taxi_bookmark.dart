@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import '../models/taxi_stand.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../models/taxi_stand.dart';
 
 class BookmarksScreen extends StatefulWidget {
   final List<String> bookmarkedTaxiStands;
-  final List<TaxiStand> allTaxiStands; // Add this line
+  final List<TaxiStand> allTaxiStands;
 
   BookmarksScreen(
-      {required this.bookmarkedTaxiStands,
-      required this.allTaxiStands}); // Update constructor
+      {required this.bookmarkedTaxiStands, required this.allTaxiStands});
 
   @override
   _BookmarksScreenState createState() => _BookmarksScreenState();
@@ -30,8 +29,8 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
     if (bookmarkedNames != null) {
       setState(() {
         _bookmarkedStands = widget.bookmarkedTaxiStands
-            .map((name) => widget.allTaxiStands.firstWhere(
-                (stand) => stand.name == name)) // Use widget.allTaxiStands
+            .map((name) =>
+                widget.allTaxiStands.firstWhere((stand) => stand.name == name))
             .toList();
       });
     }
@@ -49,20 +48,68 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Bookmarked Taxi Stands'),
+        title: Text(
+          'Bookmarked Taxi Stands',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
-      body: ListView.builder(
-        itemCount: _bookmarkedStands.length,
-        itemBuilder: (context, index) {
-          final stand = _bookmarkedStands[index];
-          return ListTile(
-            title: Text(stand.name),
-            onTap: () {
-              _launchMap(stand.latitude, stand.longitude);
-            },
-          );
-        },
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                    'images/taxibookmark.png'), // Path to your background image
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Container(
+            color: Colors.black.withOpacity(0.7), // To ensure list visibility
+          ),
+          if (_bookmarkedStands.isEmpty)
+            Center(
+              child: Text(
+                'Bookmark something for it to appear here',
+                style: TextStyle(color: Colors.white70, fontSize: 15),
+              ),
+            )
+          else
+            Padding(
+              padding: EdgeInsets.only(top: 20.0), // Add padding to the top
+              child: ListView.builder(
+                itemCount: _bookmarkedStands.length,
+                itemBuilder: (context, index) {
+                  final stand = _bookmarkedStands[index];
+                  return Card(
+                    elevation: 4,
+                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    child: ListTile(
+                      leading: Icon(Icons.local_taxi, color: Colors.yellow),
+                      title: Text(
+                        stand.name,
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
+                      ),
+                      subtitle: Text(
+                        '${stand.latitude}, ${stand.longitude}',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                      trailing: Icon(Icons.map, color: Colors.yellow),
+                      onTap: () {
+                        _launchMap(stand.latitude, stand.longitude);
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
       ),
     );
   }

@@ -1,7 +1,7 @@
 class TaxiFare {
   String origin;
   String dest;
-  String fare;
+  double fare;
   String date;
 
   TaxiFare({
@@ -10,5 +10,13 @@ class TaxiFare {
     required this.fare,
     required this.date,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'origin': origin,
+      'dest': dest,
+      'fare': fare,
+      'date': date,
+    };
+  }
 }
-// for saving data to Firestore Database

@@ -8,7 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../screens/edit_taxi_fare_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'taxi_bookmark.dart'; // Import the bookmarks screen
+import 'taxi_bookmark.dart';
 
 class TaxiScreen extends StatefulWidget {
   const TaxiScreen({Key? key}) : super(key: key);
