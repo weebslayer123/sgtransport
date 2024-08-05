@@ -1,7 +1,7 @@
 class BusRoute {
   String serviceNo;
   String operator;
-  String direction; // Add this line
+  String direction;
   int stopSequence;
   String busStopCode;
   String distance;
@@ -15,7 +15,7 @@ class BusRoute {
   BusRoute({
     required this.serviceNo,
     required this.operator,
-    required this.direction, // Add this line
+    required this.direction,
     required this.stopSequence,
     required this.busStopCode,
     required this.distance,
@@ -31,16 +31,16 @@ class BusRoute {
     return BusRoute(
       serviceNo: json['ServiceNo'] as String,
       operator: json['Operator'] as String,
-      direction: json['Direction'].toString(), // Convert to string
+      direction: json['Direction'].toString(),
       stopSequence: json['StopSequence'] as int,
       busStopCode: json['BusStopCode'] as String,
-      distance: json['Distance'].toString(), // Convert to string
-      wdFirstBus: json['WD_FirstBus'].toString(), // Convert to string
-      wdLastBus: json['WD_LastBus'].toString(), // Convert to string
-      satFirstBus: json['SAT_FirstBus'].toString(), // Convert to string
-      satLastBus: json['SAT_LastBus'].toString(), // Convert to string
-      sunFirstBus: json['SUN_FirstBus'].toString(), // Convert to string
-      sunLastBus: json['SUN_LastBus'].toString(), // Convert to string
+      distance: json['Distance'].toString(),
+      wdFirstBus: json['WD_FirstBus'].toString(),
+      wdLastBus: json['WD_LastBus'].toString(),
+      satFirstBus: json['SAT_FirstBus'].toString(),
+      satLastBus: json['SAT_LastBus'].toString(),
+      sunFirstBus: json['SUN_FirstBus'].toString(),
+      sunLastBus: json['SUN_LastBus'].toString(),
     );
   }
 }

@@ -20,7 +20,7 @@ class BusBookmarkScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: IconThemeData(
-          color: Colors.white, // Change the back arrow color to white
+          color: Colors.white,
         ),
       ),
       body: Stack(
@@ -34,7 +34,7 @@ class BusBookmarkScreen extends StatelessWidget {
             ),
           ),
           Container(
-            color: Colors.black.withOpacity(0.7), // Dark overlay
+            color: Colors.black.withOpacity(0.7),
           ),
           bookmarkedBusStops.isEmpty && bookmarkedBusNumbers.isEmpty
               ? Center(
@@ -61,9 +61,7 @@ class BusBookmarkScreen extends StatelessWidget {
                           ),
                           trailing: IconButton(
                             icon: Icon(Icons.bookmark, color: Colors.yellow),
-                            onPressed: () {
-                              // Optionally implement unbookmarking logic here if needed
-                            },
+                            onPressed: () {},
                           ),
                           tileColor: Colors.black,
                         );
@@ -85,9 +83,7 @@ class BusBookmarkScreen extends StatelessWidget {
                           ),
                           trailing: IconButton(
                             icon: Icon(Icons.bookmark, color: Colors.yellow),
-                            onPressed: () {
-                              // Optionally implement unbookmarking logic here if needed
-                            },
+                            onPressed: () {},
                           ),
                           tileColor: Colors.black,
                         );

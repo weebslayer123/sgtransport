@@ -45,7 +45,6 @@ class NextBus {
     if (estimatedArrival.isNotEmpty) {
       var nextBus = DateTime.parse(estimatedArrival);
       var difference = nextBus.difference(DateTime.now()).inMinutes;
-      // Ensure the computed arrival time is non-negative
       return difference < 0 ? '0' : difference.toString();
     }
     return '';

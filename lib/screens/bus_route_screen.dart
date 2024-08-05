@@ -116,15 +116,13 @@ class _BusRouteScreenState extends State<BusRouteScreen> {
             Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(
-                      'images/City Bus Aesthetic.jpeg'), // Replace with your image path
+                  image: AssetImage('images/City Bus Aesthetic.jpeg'),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
             Container(
-              color: Colors.black.withOpacity(
-                  0.7), // To make sure text is visible over the background
+              color: Colors.black.withOpacity(0.7),
             ),
             _isLoading
                 ? Center(child: CircularProgressIndicator())
@@ -143,8 +141,7 @@ class _BusRouteScreenState extends State<BusRouteScreen> {
 
                           return Container(
                             decoration: BoxDecoration(
-                              color: Colors.grey.withOpacity(
-                                  0), // Translucent grey background
+                              color: Colors.grey.withOpacity(0),
                               borderRadius: BorderRadius.circular(8.0),
                             ),
                             margin: const EdgeInsets.symmetric(vertical: 4.0),

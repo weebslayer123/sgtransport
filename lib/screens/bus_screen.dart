@@ -23,7 +23,7 @@ class _BusScreenState extends State<BusScreen> {
   List<BusArrival> _busArrivals = [];
   bool _isLoadingArrivals = false;
   TextEditingController _searchController = TextEditingController();
-  final FirebaseAuth auth = FirebaseAuth.instance; // Define the auth object
+  final FirebaseAuth auth = FirebaseAuth.instance;
   List<String> _bookmarkedBusStops = [];
   List<String> _bookmarkedBusNumbers = [];
 
@@ -102,7 +102,6 @@ class _BusScreenState extends State<BusScreen> {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       print('Location services are disabled.');
@@ -171,7 +170,7 @@ class _BusScreenState extends State<BusScreen> {
         assetName = 'images/bendy_bus.png';
         break;
       default:
-        return SizedBox.shrink(); // Return an empty widget if type is unknown
+        return SizedBox.shrink();
     }
     return Image.asset(assetName, width: 24, height: 24);
   }
@@ -282,19 +281,17 @@ class _BusScreenState extends State<BusScreen> {
             Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(
-                      'images/City Bus Aesthetic.jpeg'), // Replace with your image path
+                  image: AssetImage('images/City Bus Aesthetic.jpeg'),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
             Container(
-              color: Colors.black.withOpacity(
-                  0.7), // To make sure text is visible over the background
+              color: Colors.black.withOpacity(0.7),
             ),
             Column(
               children: [
-                SizedBox(height: 80.0), // Adjust the height as needed
+                SizedBox(height: 80.0),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Autocomplete<BusStop>(
@@ -326,30 +323,23 @@ class _BusScreenState extends State<BusScreen> {
                       return TextField(
                         controller: fieldTextEditingController,
                         focusNode: fieldFocusNode,
-                        style: TextStyle(
-                            color: Colors.white), // Set text color to white
+                        style: TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          filled: true, // Enable background color
-                          fillColor: Colors.black.withOpacity(
-                              0.5), // Set background color with opacity
+                          filled: true,
+                          fillColor: Colors.black.withOpacity(0.5),
                           hintText: 'Search Bus Stop',
-                          hintStyle: TextStyle(
-                              color:
-                                  Colors.white), // Set hint text color to white
+                          hintStyle: TextStyle(color: Colors.white),
                           border: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Colors.white,
-                                width: 2.0), // Make the outline bolder
+                            borderSide:
+                                BorderSide(color: Colors.white, width: 2.0),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Colors.white,
-                                width: 2.0), // Make the outline bolder
+                            borderSide:
+                                BorderSide(color: Colors.white, width: 2.0),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Colors.white,
-                                width: 2.0), // Make the outline bolder
+                            borderSide:
+                                BorderSide(color: Colors.white, width: 2.0),
                           ),
                           prefixIcon: Icon(Icons.search, color: Colors.white),
                           suffixIcon: IconButton(
@@ -408,8 +398,7 @@ class _BusScreenState extends State<BusScreen> {
                 if (_isLoadingArrivals) ...[
                   const CircularProgressIndicator(),
                   const Text('Loading bus arrivals...',
-                      style: TextStyle(
-                          color: Colors.white)), // Set text color to white
+                      style: TextStyle(color: Colors.white)),
                 ] else ...[
                   Expanded(
                     child: ListView.builder(
@@ -418,8 +407,7 @@ class _BusScreenState extends State<BusScreen> {
                         BusArrival arrival = _busArrivals[index];
                         return Container(
                           decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(
-                                0.3), // Translucent grey background
+                            color: Colors.grey.withOpacity(0.3),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -466,10 +454,8 @@ class _BusScreenState extends State<BusScreen> {
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        Colors.blue, // Set button color
-                                    foregroundColor:
-                                        Colors.white, // Set text color
+                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.white,
                                   ),
                                   child: Text('View Route'),
                                 ),
@@ -520,8 +506,8 @@ class _BusScreenState extends State<BusScreen> {
                         },
                         child: Text('Show Map'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue, // Set button color
-                          foregroundColor: Colors.white, // Set text color
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
                         ),
                       ),
                     ),
