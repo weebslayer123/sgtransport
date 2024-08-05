@@ -1,5 +1,3 @@
-// traffic_incident.dart
-
 class TrafficIncident {
   final String type;
   final double latitude;

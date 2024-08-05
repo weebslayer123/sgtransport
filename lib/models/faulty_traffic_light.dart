@@ -3,7 +3,7 @@ class FaultyTrafficLight {
   final String nodeID;
   final int type;
   final String startDate;
-  final String? endDate; // Optional as it might be empty
+  final String? endDate;
   final String message;
 
   FaultyTrafficLight({
