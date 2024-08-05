@@ -32,7 +32,6 @@ class _TrainBookmarkScreenState extends State<TrainBookmarkScreen> {
     });
     ApiCalls apiCalls = ApiCalls();
     try {
-      // Extract unique train lines from bookmarked stations
       List<String> trainLines = widget.bookmarkedStations
           .map((station) => station.trainLineCode)
           .toSet()
@@ -101,7 +100,7 @@ class _TrainBookmarkScreenState extends State<TrainBookmarkScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: IconThemeData(
-          color: Colors.white, // Change the back arrow color to white
+          color: Colors.white,
         ),
       ),
       body: Stack(
@@ -115,7 +114,7 @@ class _TrainBookmarkScreenState extends State<TrainBookmarkScreen> {
             ),
           ),
           Container(
-            color: Colors.black.withOpacity(0.5), // Dark overlay
+            color: Colors.black.withOpacity(0.5),
           ),
           _isLoading
               ? Center(child: CircularProgressIndicator(color: Colors.white))
@@ -166,9 +165,7 @@ class _TrainBookmarkScreenState extends State<TrainBookmarkScreen> {
                               trailing: IconButton(
                                 icon:
                                     Icon(Icons.bookmark, color: Colors.yellow),
-                                onPressed: () {
-                                  // Optionally implement unbookmarking logic here if needed
-                                },
+                                onPressed: () {},
                               ),
                               tileColor: Colors.black,
                             );

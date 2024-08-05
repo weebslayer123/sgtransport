@@ -33,7 +33,7 @@ class _FaultyTrafficLightsScreenState extends State<FaultyTrafficLightsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(
-          color: Colors.white, // Change the back arrow color to white
+          color: Colors.white,
         ),
       ),
       extendBody: true,
@@ -46,19 +46,18 @@ class _FaultyTrafficLightsScreenState extends State<FaultyTrafficLightsScreen> {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                    'images/traffic_light_bg.jpg'), // Use the correct background image
+                image: AssetImage('images/traffic_light_bg.jpg'),
                 fit: BoxFit.cover,
               ),
             ),
           ),
           Container(
-            color: Colors.black.withOpacity(0.5), // Dark overlay
+            color: Colors.black.withOpacity(0.5),
           ),
           Column(
             children: [
               Flexible(
-                flex: 1, // Reduce space for faulty traffic lights
+                flex: 1,
                 child: FutureBuilder<List<FaultyTrafficLight>>(
                   future: _futureFaultyTrafficLights,
                   builder: (context, snapshot) {
@@ -100,7 +99,7 @@ class _FaultyTrafficLightsScreenState extends State<FaultyTrafficLightsScreen> {
                 ),
               ),
               Flexible(
-                flex: 2, // Increase space for traffic incidents
+                flex: 2,
                 child: FutureBuilder<List<TrafficIncident>>(
                   future: _futureTrafficIncidents,
                   builder: (context, snapshot) {

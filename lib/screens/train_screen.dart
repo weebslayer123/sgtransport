@@ -14,7 +14,7 @@ class TrainScreen extends StatefulWidget {
 }
 
 class _TrainScreenState extends State<TrainScreen> {
-  final FirebaseAuth auth = FirebaseAuth.instance; // Define the auth object
+  final FirebaseAuth auth = FirebaseAuth.instance;
   TrainStation _selectedTrainStation = TrainStation(
     stnCode: '',
     stnName: '',
@@ -79,11 +79,10 @@ class _TrainScreenState extends State<TrainScreen> {
             .where((station) => station.trainLineCode == _selectedLineCode)
             .toList();
       }
-      // Ensure bookmarked stations are removed
+
       _filteredTrainStations
           .removeWhere((station) => _bookmarkedStations.contains(station));
-      _searchedStation =
-          null; // Reset searched station if user types something new
+      _searchedStation = null;
     });
   }
 
@@ -91,11 +90,9 @@ class _TrainScreenState extends State<TrainScreen> {
     setState(() {
       _searchController.text = '${selection.stnName} (${selection.stnCode})';
       _searchedStation = selection;
-      _searchHistory.insert(
-          0, selection); // Add the selection to search history
+      _searchHistory.insert(0, selection);
     });
-    _fetchCrowdDensity(selection
-        .trainLineCode); // Fetch crowd density for the selected train line
+    _fetchCrowdDensity(selection.trainLineCode);
   }
 
   void _showMRTMap() {
@@ -133,7 +130,6 @@ class _TrainScreenState extends State<TrainScreen> {
             .where((station) => station.trainLineCode == lineCode)
             .toList();
       }
-      // Ensure bookmarked stations are removed
       _filteredTrainStations
           .removeWhere((station) => _bookmarkedStations.contains(station));
       _searchedStation = null;
@@ -176,7 +172,7 @@ class _TrainScreenState extends State<TrainScreen> {
       } else {
         _bookmarkedStations.add(station);
       }
-      _filterTrainStations(); // Re-filter stations to ensure bookmarked stations are removed
+      _filterTrainStations();
     });
   }
 
@@ -253,11 +249,11 @@ class _TrainScreenState extends State<TrainScreen> {
             ),
           ),
           Container(
-            color: Colors.black.withOpacity(0.5), // Dark overlay
+            color: Colors.black.withOpacity(0.5),
           ),
           Column(
             children: [
-              SizedBox(height: 80.0), // Adjust the height as needed
+              SizedBox(height: 80.0),
               Padding(
                 padding: const EdgeInsets.symmetric(
                     vertical: 16.0, horizontal: 16.0),
@@ -272,8 +268,7 @@ class _TrainScreenState extends State<TrainScreen> {
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color:
-                              Colors.black.withOpacity(0.5), // Dark background
+                          color: Colors.black.withOpacity(0.5),
                           border: Border.all(color: Colors.grey),
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -294,8 +289,7 @@ class _TrainScreenState extends State<TrainScreen> {
                             return TextField(
                               controller: textEditingController,
                               focusNode: focusNode,
-                              style:
-                                  TextStyle(color: Colors.white), // White text
+                              style: TextStyle(color: Colors.white),
                               decoration: InputDecoration(
                                 hintText: 'Enter Train Station',
                                 hintStyle: TextStyle(color: Colors.white70),
